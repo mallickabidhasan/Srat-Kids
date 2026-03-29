@@ -1,0 +1,90 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: subscribers
+// Document ID: auto-generated
+// Fields:
+//   - email: string (required, email format) - The email address of the subscriber.
+//   - subscribedAt: timestamp (required) - The timestamp when the user subscribed.
+//
+// Collection: metadata
+// Document ID: visitorCount
+// Fields:
+//   - count: integer (required) - Total number of visitors.
+//
+// Collection: admissions
+// Document ID: auto-generated
+// Fields:
+//   - studentName: string (required)
+//   - mobile: string (required)
+//   - submittedAt: timestamp (required)
+//   ... other fields
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "thehistoricalanalysis@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidEmail(email) {
+      return email is string &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidSubscriber(data) {
+      return data.keys().hasAll(['email', 'subscribedAt']) &&
+             data.keys().hasOnly(['email', 'subscribedAt']) &&
+             isValidEmail(data.email) &&
+             data.subscribedAt is timestamp;
+    }
+
+    function isValidAdmission(data) {
+      return data.keys().hasAll(['studentName', 'mobile', 'submittedAt']) &&
+             data.studentName is string && data.studentName.size() > 0 &&
+             data.mobile is string && data.mobile.size() > 0 &&
+             data.submittedAt is timestamp;
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    match /subscribers/{subscriberId} {
+      allow create: if isValidSubscriber(request.resource.data);
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /metadata/visitorCount {
+      allow read: if true;
+      // Allow incrementing the count
+      allow update: if request.resource.data.count == resource.data.count + 1;
+      // Allow initial creation if it doesn't exist
+      allow create: if request.resource.data.count == 1;
+    }
+
+    match /admissions/{admissionId} {
+      allow create: if isValidAdmission(request.resource.data);
+      allow read, update, delete: if isAdmin();
+    }
+    
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow write: if isAdmin();
+    }
+  }
+}

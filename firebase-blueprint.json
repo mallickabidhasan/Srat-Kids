@@ -1,0 +1,66 @@
+{
+  "entities": {
+    "Subscriber": {
+      "title": "Newsletter Subscriber",
+      "description": "A user who has subscribed to the newsletter.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The email address of the subscriber."
+        },
+        "subscribedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the user subscribed."
+        }
+      },
+      "required": ["email", "subscribedAt"]
+    },
+    "VisitorCount": {
+      "title": "Visitor Count",
+      "description": "A simple counter for website visitors.",
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "description": "The total number of visitors."
+        }
+      },
+      "required": ["count"]
+    },
+    "AdmissionApplication": {
+      "title": "Admission Application",
+      "description": "A student's application for admission.",
+      "type": "object",
+      "properties": {
+        "studentName": { "type": "string" },
+        "fatherName": { "type": "string" },
+        "motherName": { "type": "string" },
+        "schoolName": { "type": "string" },
+        "className": { "type": "string" },
+        "mobile": { "type": "string" },
+        "religion": { "type": "string" },
+        "shift": { "type": "string" },
+        "studentEmail": { "type": "string", "format": "email" },
+        "submittedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["studentName", "mobile", "submittedAt"]
+    }
+  },
+  "firestore": {
+    "subscribers": {
+      "schema": "Subscriber",
+      "description": "Collection of newsletter subscribers."
+    },
+    "metadata": {
+      "schema": "VisitorCount",
+      "description": "Global metadata including visitor counts."
+    },
+    "admissions": {
+      "schema": "AdmissionApplication",
+      "description": "Collection of student admission applications."
+    }
+  }
+}
