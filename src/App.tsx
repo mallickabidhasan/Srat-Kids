@@ -161,6 +161,45 @@ const ADMINS = [
   { name: 'কাজী সাদিকুজ্জামান', role: 'সহকারী পরিচালক, স্টার কিডস্', image: 'https://i.imgur.com/HaCtMx5.jpeg' },
 ];
 
+const EXPERIENCED_TEACHERS = [
+  {
+    name: 'মেহেদী স্যার',
+    subject: 'পদার্থ ও উচ্চতর গণিত',
+    mobile: '01736-095925/ 01811-659033',
+    image: 'https://i.imgur.com/fFD6hvE.jpeg'
+  },
+  {
+    name: 'ময়না স্যার',
+    subject: 'ইংরেজি, ৮ম শ্রেণীর ক্লাস টিচার',
+    mobile: '01926-231843/ 01729644662',
+    image: 'https://i.imgur.com/bD0Y9kr.jpeg'
+  },
+  {
+    name: 'মনি স্যার',
+    subject: '৫ম শ্রেণীর ক্লাস টিচার',
+    mobile: '01716806208',
+    image: 'https://i.imgur.com/SVILI2V.jpeg'
+  },
+  {
+    name: 'শরীফ স্যার',
+    subject: 'অর্থনীতি, ৬ষ্ট শ্রেণীর গণিত',
+    mobile: '01712994462',
+    image: 'https://i.imgur.com/JnVQU7z.jpeg'
+  },
+  {
+    name: 'ফেরদৌস স্যার',
+    subject: 'গণিত',
+    mobile: '01711240615',
+    image: 'https://i.imgur.com/VQ0N7Su.jpeg'
+  },
+  {
+    name: 'রায়হান স্যার',
+    subject: 'ষষ্ঠ শ্রেণীর ক্লাস টিচার',
+    mobile: '01711968401',
+    image: 'https://i.imgur.com/p4yazwM.jpeg'
+  }
+];
+
 const TEACHER_IMAGES = [
   "https://i.imgur.com/RQRXvmF.jpeg",
   "https://i.imgur.com/6dUiYeN.jpeg",
@@ -870,7 +909,7 @@ const ClassesSection = () => {
   const [selectedClass, setSelectedClass] = useState<typeof CLASSES[0] | null>(null);
 
   return (
-    <section id="classes" className="py-24 bg-blue-50">
+    <section id="classes" className="pt-8 pb-24 bg-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-blue-900 text-sm font-black uppercase tracking-widest mb-4">একাডেমিক প্রোগ্রাম</h2>
@@ -947,7 +986,7 @@ const ClassesSection = () => {
 
 const CoursesSection = () => {
   return (
-    <section id="courses" className="py-24 bg-white">
+    <section id="courses" className="pt-8 pb-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-blue-900 text-sm font-black uppercase tracking-widest mb-4">বিশেষ শিক্ষা কার্যক্রম</h2>
@@ -978,8 +1017,8 @@ const CoursesSection = () => {
 
 const Administration = ({ onImageClick }: { onImageClick: (src: string) => void }) => {
   return (
-    <section id="administration" className="py-24 bg-blue-900 text-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="administration" className="pt-8 pb-24 bg-blue-900 text-white relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-yellow-400 text-sm font-black uppercase tracking-widest mb-4">STAR KIDS এর</h2>
           <h3 className="text-4xl md:text-5xl font-black">নেতৃত্ব ও দিকনির্দেশনায়</h3>
@@ -1010,6 +1049,135 @@ const Administration = ({ onImageClick }: { onImageClick: (src: string) => void 
           ))}
         </div>
       </div>
+
+    </section>
+  );
+};
+
+const ExperiencedTeachers = ({ onImageClick }: { onImageClick: (src: string) => void }) => {
+  const convertBengaliToStandard = (str: string) => {
+    const bengaliDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    return str.split('').map(char => {
+      const index = bengaliDigits.indexOf(char);
+      return index !== -1 ? index : char;
+    }).join('');
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
+
+  return (
+    <section className="pt-8 pb-24 bg-blue-50 relative overflow-hidden" id="experienced-teachers">
+      {/* Background decorative elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-200/20 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-yellow-200/20 rounded-full blur-[120px]"></div>
+      </div>
+
+      <div className="container mx-auto px-2 sm:px-4 relative z-10">
+        <div className="text-center mb-16 sm:mb-20">
+          <motion.h2
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-yellow-600 text-sm sm:text-base font-black uppercase tracking-widest mb-2"
+          >
+            STAR KIDS এর
+          </motion.h2>
+          <motion.h3
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-3xl sm:text-4xl md:text-5xl font-black text-blue-900 mb-4 sm:mb-6 tracking-tight px-4"
+          >
+            অভিজ্ঞ ও বরেণ্য শিক্ষকমণ্ডলী
+          </motion.h3>
+          <motion.div 
+            initial={{ width: 0 }}
+            whileInView={{ width: "8rem" }}
+            viewport={{ once: true }}
+            className="h-1.5 sm:h-2 bg-yellow-400 mx-auto rounded-full shadow-[0_0_15px_rgba(250,204,21,0.3)]"
+          ></motion.div>
+        </div>
+
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="grid grid-cols-2 gap-3 sm:gap-8 lg:gap-12 max-w-6xl mx-auto"
+        >
+          {EXPERIENCED_TEACHERS.map((teacher, index) => (
+            <motion.div
+              key={index}
+              variants={itemVariants}
+              className="group relative"
+            >
+              <div className="bg-white rounded-[24px] sm:rounded-[48px] p-2 sm:p-5 border border-blue-100 shadow-xl hover:shadow-2xl transition-all duration-500 h-full flex flex-col group-hover:scale-[1.02]">
+                {/* Image Container */}
+                <div 
+                  className="relative aspect-square rounded-[18px] sm:rounded-[36px] overflow-hidden cursor-zoom-in mb-3 sm:mb-8 border-2 sm:border-4 border-gray-50 group-hover:border-blue-400 transition-colors duration-500"
+                  onClick={() => onImageClick(teacher.image)}
+                >
+                  <img
+                    src={teacher.image}
+                    alt={teacher.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-blue-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                    <div className="bg-yellow-400 p-2 sm:p-4 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                      <ZoomIn className="text-blue-900 w-5 h-5 sm:w-8 sm:h-8" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="text-center flex-grow flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-sm sm:text-xl md:text-2xl font-black text-blue-900 mb-1 sm:mb-3 group-hover:text-blue-600 transition-colors line-clamp-1">
+                      {teacher.name}
+                    </h3>
+                    <p className="text-[10px] sm:text-sm md:text-base text-gray-600 font-bold mb-2 sm:mb-4 line-clamp-2 leading-tight sm:leading-normal">
+                      {teacher.subject}
+                    </p>
+                  </div>
+                  
+                  <div className="flex flex-col gap-1.5 sm:gap-3 mt-auto">
+                    {teacher.mobile.split('/').map((num, idx) => (
+                      <a 
+                        key={idx}
+                        href={`tel:${convertBengaliToStandard(num.replace(/[-\s()]/g, ''))}`} 
+                        className="inline-flex items-center justify-center gap-1 sm:gap-2 text-blue-700 font-black hover:scale-105 transition-all bg-blue-50/50 backdrop-blur-md border border-blue-200/50 hover:bg-blue-600 hover:text-white px-2 sm:px-5 py-1.5 sm:py-2.5 rounded-lg sm:rounded-2xl text-[9px] sm:text-sm shadow-sm"
+                      >
+                        <span className="truncate">{num.trim()}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
     </section>
   );
 };
@@ -1019,7 +1187,7 @@ const ClassTeachers = ({ onImageClick }: { onImageClick: (src: string) => void }
   const filteredTeachers = CLASS_TEACHERS.filter(t => BENGALI_CLASSES.includes(t.class) || t.class === 'ক্যাডেট');
 
   return (
-    <section className="py-24 bg-white">
+    <section className="pt-8 pb-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-blue-900 text-sm font-black uppercase tracking-widest mb-4">আমাদের মেন্টরবৃন্দ</h2>
@@ -1079,7 +1247,7 @@ const GeneralFaculty = () => {
         <table className="w-full border-separate border-spacing-y-3 min-w-[600px]">
           <thead>
             <tr className="text-white">
-              <th className="bg-blue-900 p-4 rounded-l-2xl text-lg font-black text-left">শিক্ষকের নাম</th>
+              <th className="bg-blue-900 p-4 rounded-l-2xl text-lg font-black text-left">নাম</th>
               <th className="bg-yellow-400 p-4 text-lg font-black text-left text-blue-900">মোবাইল নাম্বার</th>
               <th className="bg-blue-600 p-4 rounded-r-2xl text-lg font-black text-left">শ্রেণী/বিষয়</th>
             </tr>
@@ -1099,7 +1267,6 @@ const GeneralFaculty = () => {
                             href={`tel:${convertBengaliToStandard(num.replace(/[-\s]/g, ''))}`} 
                             className="inline-flex items-center gap-1 hover:text-blue-600 hover:underline transition-all"
                           >
-                            <Phone size={12} className="text-yellow-600" />
                             {num.trim()}
                           </a>
                           {idx < arr.length - 1 && <span className="text-gray-400">/</span>}
@@ -1120,7 +1287,7 @@ const GeneralFaculty = () => {
   };
 
   return (
-    <section id="faculty" className="py-24 bg-blue-50/50">
+    <section id="faculty" className="pt-8 pb-24 bg-blue-50/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-blue-900 text-sm font-black uppercase tracking-widest mb-4">আমাদের অভিজ্ঞ ও দক্ষ</h2>
@@ -1180,26 +1347,194 @@ const GeneralFaculty = () => {
   );
 };
 
+const IT_TEAM = [
+  {
+    name: 'মাসুদ স্যার',
+    role: 'কম্পিউটার এবং সোশ্যাল মিডিয়া অপারেটর',
+    mobile: '01794495809/ 01571468074',
+    image: 'https://i.imgur.com/XnhBGsS.jpeg',
+    color: 'bg-blue-600'
+  },
+  {
+    name: 'সুলাইমান স্যার',
+    role: 'কম্পিউটার এবং সোশ্যাল মিডিয়া অপারেটর',
+    mobile: '01756536803',
+    image: 'https://i.imgur.com/iCR7vAQ.jpeg',
+    color: 'bg-yellow-400'
+  },
+  {
+    name: 'রুবেল স্যার',
+    role: 'কম্পিউটার অপারেটর',
+    mobile: '',
+    image: 'https://i.imgur.com/80wgHM4.jpeg',
+    color: 'bg-sky-500'
+  },
+  {
+    name: 'খালিদ হাসান স্যার',
+    role: 'ফটোকপি অপারেটর',
+    mobile: '',
+    image: 'https://i.imgur.com/yQhGbDD.jpeg',
+    color: 'bg-indigo-600'
+  }
+];
+
+const ITDepartment = () => {
+  const [selectedMember, setSelectedMember] = useState<typeof IT_TEAM[0] | null>(null);
+
+  return (
+    <section className="pt-8 pb-24 bg-slate-50 relative overflow-hidden border-y border-slate-200/60">
+      {/* Background design */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-200/30 rounded-full blur-[100px]"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-200/30 rounded-full blur-[100px]"></div>
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="text-center mb-16">
+          <motion.h2 
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-yellow-600 text-sm sm:text-base font-black uppercase tracking-widest mb-2"
+          >
+            STAR KIDS এর
+          </motion.h2>
+          <motion.h3 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl md:text-5xl font-black text-blue-900"
+          >
+            IT বিভাগ
+          </motion.h3>
+          <motion.div 
+            initial={{ width: 0 }}
+            whileInView={{ width: "6rem" }}
+            viewport={{ once: true }}
+            className="h-1.5 bg-yellow-400 mx-auto rounded-full mt-4"
+          ></motion.div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8 max-w-5xl mx-auto">
+          {IT_TEAM.map((member, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              onClick={() => setSelectedMember(member)}
+              className={`${member.color} p-6 rounded-3xl shadow-xl cursor-pointer relative group overflow-hidden flex flex-col items-center justify-center text-center min-h-[160px] hover:scale-105 transition-transform duration-300 border border-white/20`}
+            >
+              <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              
+              <h4 className={`text-xl sm:text-2xl font-black ${member.color === 'bg-yellow-400' ? 'text-blue-900' : 'text-white'} mb-2`}>
+                {member.name}
+              </h4>
+
+              {/* Clicking Hand Animation */}
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: [0.5, 1, 0.5],
+                  y: [0, -5, 0]
+                }}
+                transition={{ 
+                  repeat: Infinity, 
+                  duration: 1,
+                  ease: "easeInOut"
+                }}
+                className={`absolute bottom-4 right-4 ${member.color === 'bg-yellow-400' ? 'text-blue-900' : 'text-white'}`}
+              >
+                <MousePointer2 size={24} />
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Popup Modal */}
+      <AnimatePresence>
+        {selectedMember && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-blue-950/80 backdrop-blur-sm"
+              onClick={() => setSelectedMember(null)}
+            />
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 20 }}
+              className="relative bg-white rounded-[2.5rem] overflow-hidden max-w-md w-full shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button 
+                onClick={() => setSelectedMember(null)}
+                className="absolute top-4 right-4 z-10 bg-black/20 hover:bg-black/40 text-white p-2 rounded-full transition-colors"
+              >
+                <X size={24} />
+              </button>
+
+              <div className="relative aspect-square">
+                <img 
+                  src={selectedMember.image} 
+                  alt={selectedMember.name} 
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                <div className="absolute bottom-6 left-6 text-white">
+                  <h3 className="text-3xl font-black mb-1">{selectedMember.name}</h3>
+                  <p className="text-yellow-400 font-bold">{selectedMember.role}</p>
+                </div>
+              </div>
+
+              <div className="p-8">
+                {selectedMember.mobile && (
+                  <div className="flex items-center gap-4 bg-blue-50 p-4 rounded-2xl">
+                    <div className="bg-blue-600 text-white p-3 rounded-xl">
+                      <Phone size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-blue-900/60 uppercase tracking-widest">মোবাইল নম্বর</p>
+                      <p className="text-lg font-black text-blue-900">{selectedMember.mobile}</p>
+                    </div>
+                  </div>
+                )}
+                
+                <button 
+                  onClick={() => setSelectedMember(null)}
+                  className="w-full mt-6 bg-blue-900 text-white py-4 rounded-2xl font-black hover:bg-blue-800 transition-colors"
+                >
+                  বন্ধ করুন
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </section>
+  );
+};
+
 const BlogSection = ({ onImageClick }: { onImageClick: (src: string) => void }) => {
   const [showAllBlogs, setShowAllBlogs] = useState(false);
 
   return (
-    <section id="blog" className="py-24 bg-white">
+    <section id="blog" className="pt-8 pb-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-          <div className="max-w-xl">
+        <div className="mb-16">
+          <div className="max-w-xl text-left">
             <h2 className="text-blue-900 text-sm font-black uppercase tracking-widest mb-4">ক্যাম্পাস আপডেট ও নোটিশ</h2>
             <h3 className="text-4xl md:text-5xl font-black text-blue-900">আমাদের সর্বশেষ ব্লগ</h3>
           </div>
-          <button 
-            onClick={() => setShowAllBlogs(true)}
-            className="text-blue-900 font-black flex items-center gap-2 hover:text-yellow-600 transition-colors"
-          >
-            সকল ব্লগ দেখুন <ChevronRight size={20} />
-          </button>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16">
           {BLOG_POSTS.slice(0, 2).map((post) => (
             <article key={post.id} className="group cursor-pointer" onClick={() => onImageClick(post.image)}>
               <div className="relative aspect-[4/3] rounded-3xl overflow-hidden mb-6">
@@ -1230,6 +1565,15 @@ const BlogSection = ({ onImageClick }: { onImageClick: (src: string) => void }) 
               )}
             </article>
           ))}
+        </div>
+
+        <div className="text-center">
+          <button 
+            onClick={() => setShowAllBlogs(true)}
+            className="bg-blue-900 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-blue-800 transition-all shadow-xl shadow-blue-900/20 active:scale-95 inline-flex items-center gap-2"
+          >
+            সকল ব্লগ দেখুন <ChevronRight size={20} />
+          </button>
         </div>
       </div>
 
@@ -1618,7 +1962,7 @@ const AdmissionForm = () => {
   };
 
   return (
-    <section id="admission" className="py-24 bg-blue-50 relative overflow-hidden">
+    <section id="admission" className="pt-8 pb-24 bg-blue-50 relative overflow-hidden">
       <div className="max-w-4xl mx-auto px-4 relative z-10">
         <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-blue-100">
           <div className="bg-blue-900 p-12 text-white text-center">
@@ -1822,7 +2166,7 @@ const Sponsors = () => {
 
 const SocialLinks = () => {
   return (
-    <section className="pt-24 pb-24 bg-white">
+    <section className="pt-8 pb-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 text-center">
         <div className="mb-12">
           <h3 className="text-4xl font-black text-blue-900 mb-2">সোশ্যাল মিডিয়ায়</h3>
@@ -2137,8 +2481,11 @@ export default function App() {
         <ClassesSection />
         <CoursesSection />
         <Administration onImageClick={openLightbox} />
+        <div className="h-12 bg-white" />
+        <ExperiencedTeachers onImageClick={openLightbox} />
         <ClassTeachers onImageClick={openLightbox} />
         <GeneralFaculty />
+        <ITDepartment />
         <BlogSection onImageClick={openLightbox} />
         <VisitorCounter />
         <AdmissionForm />
