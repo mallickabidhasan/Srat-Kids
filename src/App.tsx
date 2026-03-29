@@ -2216,7 +2216,8 @@ const SocialLinks = () => {
               <div className="text-center md:text-left">
                 <div className="text-3xl font-black text-blue-900 group-hover:text-white mb-2">Mallick Abid Hasan</div>
                 <div className="text-sm font-bold text-blue-900 group-hover:text-yellow-400 uppercase tracking-widest opacity-80 mb-6">
-                  Website Designer<br/>& Star Kids Teacher
+                  Website Designer<br/>& Star Kids Teacher<br/>
+                  <span className="normal-case font-black text-xs mt-1 block">(General Science & Math)</span>
                 </div>
                 
                 <div className="flex justify-center md:justify-start gap-4">
@@ -2224,7 +2225,7 @@ const SocialLinks = () => {
                   <a href="https://www.facebook.com/MallickAbidHasan360" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/10 rounded-xl text-blue-900 group-hover:text-white hover:bg-yellow-400 hover:text-blue-900 transition-all duration-300"><Facebook size={20} /></a>
                   <a href="https://www.tiktok.com/@thehistoricalanalysis" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/10 rounded-xl text-blue-900 group-hover:text-white hover:bg-yellow-400 hover:text-blue-900 transition-all duration-300"><Music2 size={20} /></a>
                   <a href="https://t.me/Granthagara" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/10 rounded-xl text-blue-900 group-hover:text-white hover:bg-yellow-400 hover:text-blue-900 transition-all duration-300"><Send size={20} /></a>
-                  <a href="https://wa.me/+8801854009603" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/10 rounded-xl text-blue-900 group-hover:text-white hover:bg-yellow-400 hover:text-blue-900 transition-all duration-300"><MessageCircle size={20} /></a>
+                  <a href="https://wa.me/+8801854009603" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/10 rounded-xl text-blue-900 group-hover:text-white hover:bg-yellow-400 hover:text-blue-900 transition-all duration-300"><Phone size={20} /></a>
                 </div>
               </div>
             </div>
