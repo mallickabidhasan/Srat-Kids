@@ -31,7 +31,8 @@ import {
   Youtube,
   Send,
   MessageCircle,
-  Music2
+  Music2,
+  Calendar
 } from 'lucide-react';
 import { motion, AnimatePresence, animate, useInView } from 'framer-motion';
 import { db, auth } from './firebase';
@@ -163,6 +164,18 @@ const ADMINS = [
 
 const EXPERIENCED_TEACHERS = [
   {
+    name: 'ফেরদৌস স্যার',
+    subject: 'গণিত',
+    mobile: '01711240615',
+    image: 'https://i.imgur.com/VQ0N7Su.jpeg'
+  },
+  {
+    name: 'শরিফ স্যার',
+    subject: 'গণিত',
+    mobile: '01712994462',
+    image: 'https://i.imgur.com/JnVQU7z.jpeg'
+  },
+  {
     name: 'মেহেদী স্যার',
     subject: 'পদার্থ ও উচ্চতর গণিত',
     mobile: '01736-095925/ 01811-659033',
@@ -175,28 +188,16 @@ const EXPERIENCED_TEACHERS = [
     image: 'https://i.imgur.com/bD0Y9kr.jpeg'
   },
   {
-    name: 'মনি স্যার',
-    subject: '৫ম শ্রেণীর ক্লাস টিচার',
-    mobile: '01716806208',
-    image: 'https://i.imgur.com/SVILI2V.jpeg'
-  },
-  {
-    name: 'শরীফ স্যার',
-    subject: 'অর্থনীতি, ৬ষ্ট শ্রেণীর গণিত',
-    mobile: '01712994462',
-    image: 'https://i.imgur.com/JnVQU7z.jpeg'
-  },
-  {
-    name: 'ফেরদৌস স্যার',
-    subject: 'গণিত',
-    mobile: '01711240615',
-    image: 'https://i.imgur.com/VQ0N7Su.jpeg'
-  },
-  {
     name: 'রায়হান স্যার',
     subject: 'ষষ্ঠ শ্রেণীর ক্লাস টিচার',
     mobile: '01711968401',
     image: 'https://i.imgur.com/p4yazwM.jpeg'
+  },
+  {
+    name: 'মনি স্যার',
+    subject: '৫ম শ্রেণীর ক্লাস টিচার',
+    mobile: '01716806208',
+    image: 'https://i.imgur.com/SVILI2V.jpeg'
   }
 ];
 
@@ -336,12 +337,83 @@ function getOrdinal(n: number) {
 
 // --- Components ---
 
+const FreeClassModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean, onClose: () => void, onConfirm: () => void }) => {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-blue-900/60 backdrop-blur-sm"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            className="bg-white rounded-3xl p-8 md:p-12 max-w-2xl w-full shadow-2xl relative overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button 
+              onClick={onClose}
+              className="absolute top-6 right-6 p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+            >
+              <X size={24} className="text-gray-600" />
+            </button>
+
+            <div className="text-center">
+              <div className="w-20 h-20 bg-yellow-400/20 rounded-full flex items-center justify-center mx-auto mb-8">
+                <Calendar className="text-yellow-600" size={40} />
+              </div>
+              
+              <h3 className="text-2xl md:text-3xl font-black text-blue-900 mb-6 leading-tight">
+                ফ্রি ক্লাস সার্ভিস
+              </h3>
+              
+              <p className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed font-medium">
+                আপনি আমাদের কোচিং থেকে কতটুকু উপকৃত হবেন এটা বোঝার জন্য আমরা সকল শিক্ষার্থীদেরকে এক সপ্তাহ ফ্রি ক্লাস সার্ভিস প্রদান করে থাকি। এক সপ্তাহ ফ্রি ক্লাসের পরে আপনি সিদ্ধান্ত নিতে পারেন যে আপনার সন্তানকে আমাদের কোচিং এ ভর্তি করাবেন কি না।
+              </p>
+
+              <div className="pt-8 border-t border-gray-100">
+                <p className="text-blue-900 font-black text-lg mb-6">
+                  আপনি আপনার সন্তানকে ভর্তি করতে চাইলে
+                </p>
+                
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    onConfirm();
+                    onClose();
+                  }}
+                  className="bg-[#00a651] text-white px-10 py-5 rounded-2xl font-black text-xl shadow-xl shadow-green-500/20 hover:bg-[#008c44] transition-all flex items-center gap-3 mx-auto"
+                >
+                  ভর্তি নিশ্চিত করুন
+                  <ChevronRight />
+                </motion.button>
+              </div>
+            </div>
+
+            {/* Decorative elements */}
+            <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-yellow-400/10 rounded-full"></div>
+            <div className="absolute -top-12 -left-12 w-24 h-24 bg-blue-900/5 rounded-full"></div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 const ImageLightbox = ({ 
   src, 
+  caption,
   isOpen, 
   onClose 
 }: { 
   src: string | null, 
+  caption?: string | null,
   isOpen: boolean, 
   onClose: () => void 
 }) => {
@@ -402,25 +474,38 @@ const ImageLightbox = ({
           </div>
 
           {/* Image Container */}
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="relative w-full h-full flex items-center justify-center overflow-hidden pointer-events-auto"
-          >
-            <motion.img
-              src={src}
-              alt="Zoomed view"
-              style={{ 
-                scale: zoom,
-                rotate: `${rotation}deg`,
-              }}
-              className="max-w-full max-h-full object-contain transition-transform duration-200 cursor-grab active:cursor-grabbing"
-              referrerPolicy="no-referrer"
-              drag
-              dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-              dragElastic={0.5}
-            />
-          </motion.div>
+          <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden pointer-events-auto">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="relative w-full h-full flex items-center justify-center overflow-hidden"
+            >
+              <motion.img
+                src={src}
+                alt="Zoomed view"
+                style={{ 
+                  scale: zoom,
+                  rotate: `${rotation}deg`,
+                }}
+                className="max-w-full max-h-full object-contain transition-transform duration-200 cursor-grab active:cursor-grabbing"
+                referrerPolicy="no-referrer"
+                drag
+                dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                dragElastic={0.5}
+              />
+            </motion.div>
+            
+            {/* Caption */}
+            {caption && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute bottom-10 bg-blue-900/80 backdrop-blur-md text-white px-8 py-4 rounded-2xl border border-white/10 shadow-2xl"
+              >
+                <p className="text-lg font-black tracking-tight">{caption}</p>
+              </motion.div>
+            )}
+          </div>
         </div>
       </div>
     </AnimatePresence>
@@ -510,7 +595,7 @@ const VideoModal = ({
   );
 };
 
-const Navbar = ({ onImageClick }: { onImageClick: (src: string) => void }) => {
+const Navbar = ({ onImageClick }: { onImageClick: (src: string, caption?: string) => void }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -603,7 +688,7 @@ const Hero = ({
   onImageClick, 
   onVideoClick 
 }: { 
-  onImageClick: (src: string) => void,
+  onImageClick: (src: string, caption?: string) => void,
   onVideoClick: (url: string) => void 
 }) => {
   const heroImg = "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=2000";
@@ -733,7 +818,7 @@ const NoticeBoard = () => {
   );
 };
 
-const About = ({ onImageClick }: { onImageClick: (src: string) => void }) => {
+const About = ({ onImageClick }: { onImageClick: (src: string, caption?: string) => void }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAllActivities, setShowAllActivities] = useState(false);
   
@@ -909,7 +994,7 @@ const ClassesSection = () => {
   const [selectedClass, setSelectedClass] = useState<typeof CLASSES[0] | null>(null);
 
   return (
-    <section id="classes" className="pt-8 pb-24 bg-blue-50">
+    <section id="classes" className="pt-4 pb-24 bg-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-blue-900 text-sm font-black uppercase tracking-widest mb-4">একাডেমিক প্রোগ্রাম</h2>
@@ -986,27 +1071,42 @@ const ClassesSection = () => {
 
 const CoursesSection = () => {
   return (
-    <section id="courses" className="pt-8 pb-24 bg-white">
+    <section id="courses" className="pt-4 pb-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-blue-900 text-sm font-black uppercase tracking-widest mb-4">বিশেষ শিক্ষা কার্যক্রম</h2>
-          <h3 className="text-4xl md:text-5xl font-black text-blue-900">আমাদের কোর্সসমূহ</h3>
+          <h2 className="text-[#ff7e5f] text-sm md:text-base font-black uppercase tracking-widest mb-2">বিশেষ শিক্ষা কার্যক্রম</h2>
+          <h3 className="text-3xl md:text-5xl font-black text-blue-900">আমাদের কোর্সসমূহ</h3>
+          <div className="w-20 h-1.5 bg-yellow-400 mx-auto rounded-full mt-4"></div>
         </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {COURSES.map((course, idx) => (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {COURSES.map((course, index) => (
             <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              viewport={{ once: true }}
-              className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all group"
+              key={index}
+              initial="initial"
+              whileHover="hover"
+              variants={{
+                initial: { y: 0 },
+                hover: { y: -10 }
+              }}
+              className="bg-blue-50/20 p-8 rounded-3xl border border-blue-100/50 shadow-sm hover:shadow-xl transition-all flex flex-col"
             >
-              <div className="text-5xl mb-6 group-hover:scale-110 transition-transform inline-block">{course.icon}</div>
-              <h4 className="text-xl font-black text-blue-900 mb-4">{course.title}</h4>
-              <div className="text-gray-600 leading-relaxed mb-6">{course.description}</div>
-              <div className="w-12 h-1 bg-yellow-400 group-hover:w-full transition-all duration-500"></div>
+              <div className="text-4xl mb-6">{course.icon}</div>
+              <h4 className="text-lg md:text-xl lg:text-2xl font-black text-blue-900 mb-4 whitespace-nowrap overflow-hidden text-ellipsis">
+                {course.title}
+              </h4>
+              <div className="text-gray-600 leading-relaxed flex-grow">
+                {course.description}
+              </div>
+              
+              {/* Animated Yellow Line */}
+              <motion.div
+                variants={{
+                  initial: { width: "2rem" },
+                  hover: { width: "6rem" }
+                }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="h-1.5 bg-yellow-400 rounded-full mt-6"
+              />
             </motion.div>
           ))}
         </div>
@@ -1015,179 +1115,200 @@ const CoursesSection = () => {
   );
 };
 
-const Administration = ({ onImageClick }: { onImageClick: (src: string) => void }) => {
+const Administration = ({ onImageClick }: { onImageClick: (src: string, caption?: string) => void }) => {
   return (
-    <section id="administration" className="pt-8 pb-24 bg-blue-900 text-white relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section id="administration" className="pt-4 pb-24 bg-[#1a368d] text-white">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-yellow-400 text-sm font-black uppercase tracking-widest mb-4">STAR KIDS এর</h2>
-          <h3 className="text-4xl md:text-5xl font-black">নেতৃত্ব ও দিকনির্দেশনায়</h3>
+          <h2 className="text-yellow-400 text-lg md:text-xl font-black uppercase tracking-[0.2em] mb-4">STAR KIDS এর</h2>
+          <h3 className="text-4xl md:text-6xl font-black leading-tight">নেতৃত্ব ও দিকনির্দেশনায়</h3>
         </div>
-
-        <div className="grid sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {ADMINS.map((admin, idx) => (
+        
+        <div className="flex flex-col gap-16">
+          {ADMINS.map((admin, index) => (
             <motion.div
-              key={idx}
-              whileHover={{ y: -10 }}
-              className="group cursor-pointer"
-              onClick={() => onImageClick(admin.image)}
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="group cursor-pointer max-w-[340px] mx-auto w-full"
+              onClick={() => onImageClick(admin.image, admin.name)}
             >
-              <div className="relative aspect-square rounded-3xl overflow-hidden mb-6 border-4 border-white/10 group-hover:border-yellow-400 transition-colors">
+              {/* Image Container with Blurred Border / Glow Effect */}
+              <div className="relative aspect-square w-full mb-6 rounded-3xl overflow-hidden border-2 border-white/10 group-hover:border-yellow-400/40 transition-all duration-500 shadow-[0_0_30px_rgba(255,255,255,0.15)] group-hover:shadow-[0_0_60px_rgba(250,204,21,0.4)] bg-blue-950">
                 <img 
                   src={admin.image} 
                   alt={admin.name} 
-                  className="w-full h-full object-cover transition-all duration-500" 
-                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                  referrerPolicy="no-referrer" 
                 />
-                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Maximize2 className="text-white" size={32} />
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </div>
-              <h4 className="text-xl font-black mb-1">{admin.name}</h4>
-              <p className="text-yellow-400 font-bold uppercase text-xs tracking-widest">{admin.role}</p>
+              
+              {/* Text Styling matching Screenshot 1 */}
+              <div className="text-center space-y-1">
+                <h4 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+                  {admin.name}
+                </h4>
+                <p className="text-yellow-400 text-lg md:text-xl font-bold">
+                  {admin.role}
+                </p>
+              </div>
             </motion.div>
           ))}
         </div>
       </div>
-
     </section>
   );
 };
 
-const ExperiencedTeachers = ({ onImageClick }: { onImageClick: (src: string) => void }) => {
-  const convertBengaliToStandard = (str: string) => {
-    const bengaliDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-    return str.split('').map(char => {
-      const index = bengaliDigits.indexOf(char);
-      return index !== -1 ? index : char;
-    }).join('');
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1,
-      transition: { duration: 0.6, ease: "easeOut" }
-    }
-  };
+const ChiefCoordinatorSection = ({ onImageClick }: { onImageClick: (src: string, caption?: string) => void }) => {
+  const [showMobile, setShowMobile] = useState(false);
 
   return (
-    <section className="pt-8 pb-24 bg-blue-50 relative overflow-hidden" id="experienced-teachers">
-      {/* Background decorative elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-200/20 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-yellow-200/20 rounded-full blur-[120px]"></div>
-      </div>
-
-      <div className="container mx-auto px-2 sm:px-4 relative z-10">
-        <div className="text-center mb-16 sm:mb-20">
-          <motion.h2
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-yellow-600 text-sm sm:text-base font-black uppercase tracking-widest mb-2"
-          >
-            STAR KIDS এর
-          </motion.h2>
-          <motion.h3
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-4xl md:text-5xl font-black text-blue-900 mb-4 sm:mb-6 tracking-tight px-4"
-          >
-            অভিজ্ঞ ও বরেণ্য শিক্ষকমণ্ডলী
-          </motion.h3>
-          <motion.div 
-            initial={{ width: 0 }}
-            whileInView={{ width: "8rem" }}
-            viewport={{ once: true }}
-            className="h-1.5 sm:h-2 bg-yellow-400 mx-auto rounded-full shadow-[0_0_15px_rgba(250,204,21,0.3)]"
-          ></motion.div>
+    <section id="chief-coordinator" className="pt-4 pb-16 bg-white">
+      <div className="max-w-4xl mx-auto px-4">
+        {/* Section Header */}
+        <div className="text-center mb-12 flex flex-col items-center">
+          <h2 className="text-[#ff7e5f] text-lg md:text-xl font-black uppercase tracking-widest mb-2">STAR KIDS এর</h2>
+          <h3 className="text-3xl md:text-5xl font-black text-[#1e3a8a] mb-8">অ্যাডমিন প্যানেল</h3>
+          <div className="w-32 h-1.5 bg-yellow-400 rounded-full"></div>
         </div>
 
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-2 gap-3 sm:gap-8 lg:gap-12 max-w-6xl mx-auto"
+        <div className="max-w-sm mx-auto">
+          <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          whileHover={{ y: -10 }}
+          className="bg-white rounded-[3rem] shadow-[0_20px_40px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100 cursor-pointer group relative"
+          onClick={() => onImageClick('https://i.imgur.com/JnVQU7z.jpeg', 'অ্যাডমিন, STAR KIDS')}
         >
-          {EXPERIENCED_TEACHERS.map((teacher, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-              className="group relative"
+          {/* Top Part: Image with Overlay Text */}
+          <div className="relative h-[350px] w-full overflow-hidden bg-[#2d0a4e]">
+            <img 
+              src="https://i.imgur.com/JnVQU7z.jpeg" 
+              alt="অ্যাডমিন" 
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+              referrerPolicy="no-referrer"
+            />
+            {/* Gradient Overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#2d0a4e] via-transparent to-transparent opacity-90"></div>
+            
+            {/* Arrow Icon at top right to toggle mobile */}
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowMobile(!showMobile);
+              }}
+              className={`absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 z-10 border border-white/10 ${
+                showMobile ? 'bg-yellow-400 text-blue-900 rotate-180' : 'bg-black/40 backdrop-blur-md text-white hover:bg-black/60'
+              }`}
             >
-              <div className="bg-white rounded-[24px] sm:rounded-[48px] p-2 sm:p-5 border border-blue-100 shadow-xl hover:shadow-2xl transition-all duration-500 h-full flex flex-col group-hover:scale-[1.02]">
-                {/* Image Container */}
-                <div 
-                  className="relative aspect-square rounded-[18px] sm:rounded-[36px] overflow-hidden cursor-zoom-in mb-3 sm:mb-8 border-2 sm:border-4 border-gray-50 group-hover:border-blue-400 transition-colors duration-500"
-                  onClick={() => onImageClick(teacher.image)}
-                >
-                  <img
-                    src={teacher.image}
-                    alt={teacher.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-blue-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                    <div className="bg-yellow-400 p-2 sm:p-4 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                      <ZoomIn className="text-blue-900 w-5 h-5 sm:w-8 sm:h-8" />
+              <ChevronDown size={20} />
+            </button>
+
+            {/* Text Overlay */}
+            <div className="absolute bottom-8 left-8 right-8">
+              <h4 className="text-2xl md:text-3xl font-black text-white mb-1 tracking-tight">এ.কে.এম শরিফুজ্জামান</h4>
+              <p className="text-yellow-400 font-black text-base">অ্যাডমিন, STAR KIDS</p>
+            </div>
+          </div>
+
+          {/* Bottom Part: Mobile Box (Conditional) */}
+          <AnimatePresence>
+            {showMobile && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="bg-white overflow-hidden"
+              >
+                <div className="p-10 pt-0 mt-10">
+                  <div className="bg-[#f0f7ff] rounded-[2rem] p-5 flex items-center gap-4 border border-blue-50">
+                    <div className="w-12 h-12 bg-blue-600 rounded-[1rem] flex items-center justify-center text-white shadow-lg shadow-blue-600/30 shrink-0">
+                      <Phone size={22} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <p className="text-blue-400 font-black text-[9px] md:text-[10px] uppercase tracking-[0.2em] mb-0.5">মোবাইল নম্বর</p>
+                      <p className="text-[#1e3a8a] font-black text-lg md:text-xl">01712994462</p>
                     </div>
                   </div>
                 </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+    </div>
+  </section>
+);
+};
 
-                {/* Content */}
-                <div className="text-center flex-grow flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-sm sm:text-xl md:text-2xl font-black text-blue-900 mb-1 sm:mb-3 group-hover:text-blue-600 transition-colors line-clamp-1">
-                      {teacher.name}
-                    </h3>
-                    <p className="text-[10px] sm:text-sm md:text-base text-gray-600 font-bold mb-2 sm:mb-4 line-clamp-2 leading-tight sm:leading-normal">
-                      {teacher.subject}
-                    </p>
-                  </div>
-                  
-                  <div className="flex flex-col gap-1.5 sm:gap-3 mt-auto">
-                    {teacher.mobile.split('/').map((num, idx) => (
-                      <a 
-                        key={idx}
-                        href={`tel:${convertBengaliToStandard(num.replace(/[-\s()]/g, ''))}`} 
-                        className="inline-flex items-center justify-center gap-1 sm:gap-2 text-blue-700 font-black hover:scale-105 transition-all bg-blue-50/50 backdrop-blur-md border border-blue-200/50 hover:bg-blue-600 hover:text-white px-2 sm:px-5 py-1.5 sm:py-2.5 rounded-lg sm:rounded-2xl text-[9px] sm:text-sm shadow-sm"
-                      >
-                        <span className="truncate">{num.trim()}</span>
-                      </a>
-                    ))}
-                  </div>
-                </div>
+const ExperiencedTeachers = ({ onImageClick }: { onImageClick: (src: string, caption?: string) => void }) => {
+  return (
+    <section id="experienced" className="pt-4 pb-24 bg-blue-50 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-200/20 blur-[120px] rounded-full"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-yellow-200/20 blur-[120px] rounded-full"></div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 relative z-10">
+        {/* Header Section */}
+        <div className="text-center mb-16 flex flex-col items-center">
+          <h2 className="text-[#ff7e5f] text-lg font-black mb-2 tracking-tight">STAR KIDS এর</h2>
+          <h3 className="text-3xl md:text-5xl font-black text-[#1e3a8a] mb-8 leading-tight">
+            অভিজ্ঞ ও বরেণ্য শিক্ষকমণ্ডলী
+          </h3>
+          <div className="w-32 h-1.5 bg-yellow-400 rounded-full"></div>
+        </div>
+
+        {/* Grid Section - 2 columns on all devices */}
+        <div className="grid grid-cols-2 gap-4 md:gap-10">
+          {EXPERIENCED_TEACHERS.map((teacher, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -10 }}
+              className="bg-white p-3 md:p-8 rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.08)] flex flex-col items-center text-center border border-blue-50 cursor-pointer group"
+              onClick={() => onImageClick(teacher.image, teacher.name)}
+            >
+              {/* Purple Image Container */}
+              <div className="w-full aspect-square bg-[#2d0a4e] rounded-xl md:rounded-2xl overflow-hidden mb-2 md:mb-4 relative">
+                <img 
+                  src={teacher.image} 
+                  alt={teacher.name} 
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                  referrerPolicy="no-referrer" 
+                />
+              </div>
+
+              {/* Text Content */}
+              <h4 className="text-xl md:text-2xl font-black text-[#1e3a8a] mb-0.5 md:mb-1">{teacher.name}</h4>
+              <p className="text-blue-900/60 font-bold text-[10px] md:text-base mb-1 md:mb-2 line-clamp-1">
+                {teacher.subject}
+              </p>
+              
+              {/* Mobile Number Box */}
+              <div className="w-full py-2 md:py-3 px-2 md:px-4 bg-[#f0f7ff] border-2 border-blue-50 rounded-xl md:rounded-2xl text-[#1e3a8a] font-black text-[10px] md:text-lg shadow-sm">
+                {teacher.mobile.split('/')[0].trim()}
               </div>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
 };
 
-const ClassTeachers = ({ onImageClick }: { onImageClick: (src: string) => void }) => {
-  // Filter to show Class 1-10 and Cadet
+const ClassTeachers = ({ onImageClick, onFreeClassClick }: { onImageClick: (src: string, caption?: string) => void, onFreeClassClick: () => void }) => {
   const filteredTeachers = CLASS_TEACHERS.filter(t => BENGALI_CLASSES.includes(t.class) || t.class === 'ক্যাডেট');
 
   return (
-    <section className="pt-8 pb-24 bg-white">
+    <section className="pt-4 pb-24 bg-white" id="class-teachers">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-blue-900 text-sm font-black uppercase tracking-widest mb-4">আমাদের মেন্টরবৃন্দ</h2>
@@ -1198,8 +1319,8 @@ const ClassTeachers = ({ onImageClick }: { onImageClick: (src: string) => void }
           {filteredTeachers.map((teacher) => (
             <motion.div 
               key={teacher.id} 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               className="w-1/2 md:w-1/4 px-4 text-center group cursor-pointer"
               onClick={() => onImageClick(teacher.image)}
@@ -1225,86 +1346,111 @@ const ClassTeachers = ({ onImageClick }: { onImageClick: (src: string) => void }
             </motion.div>
           ))}
         </div>
+
+        {/* Free Class CTA Button */}
+        <div className="mt-20 flex justify-center">
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onFreeClassClick}
+            className="bg-[#00a651] text-white px-8 md:px-12 py-4 md:py-5 rounded-full font-black text-sm md:text-xl flex items-center gap-3 shadow-[0_10px_30px_rgba(0,166,81,0.3)] hover:bg-[#008c44] transition-all group"
+          >
+            ফ্রি ক্লাস করুন
+            <ChevronRight className="group-hover:translate-x-2 transition-transform" />
+          </motion.button>
+        </div>
       </div>
     </section>
   );
 };
 
+const convertBengaliToStandard = (str: string) => {
+  const bengaliDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+  return str.split('').map(char => {
+    const index = bengaliDigits.indexOf(char);
+    return index !== -1 ? index : char;
+  }).join('');
+};
+
+interface TeacherData {
+  id: number;
+  name: string;
+  subject: string;
+  mobile: string;
+}
+
 const GeneralFaculty = () => {
   const [showAll, setShowAll] = useState(false);
 
-  const Table = ({ data, isModal = false }: { data: typeof TEACHER_LIST_DATA, isModal?: boolean }) => {
-    const convertBengaliToStandard = (str: string) => {
-      const bengaliDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-      return str.split('').map(char => {
-        const index = bengaliDigits.indexOf(char);
-        return index !== -1 ? index : char;
-      }).join('');
-    };
-
-    return (
-      <div className={`overflow-x-auto ${isModal ? 'max-h-[70vh] pr-2' : ''}`}>
-        <table className="w-full border-separate border-spacing-y-3 min-w-[600px]">
-          <thead>
-            <tr className="text-white">
-              <th className="bg-blue-900 p-4 rounded-l-2xl text-lg font-black text-left">নাম</th>
-              <th className="bg-yellow-400 p-4 text-lg font-black text-left text-blue-900">মোবাইল নাম্বার</th>
-              <th className="bg-blue-600 p-4 rounded-r-2xl text-lg font-black text-left">শ্রেণী/বিষয়</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((teacher) => (
-              <tr key={teacher.id} className="group">
-                <td className="bg-blue-50 p-4 rounded-l-2xl border-y border-l border-blue-100 h-14 font-bold text-blue-900 group-hover:bg-blue-100 transition-colors">
-                  {teacher.name}
-                </td>
-                <td className="bg-yellow-50 p-4 border-y border-yellow-100 h-14 text-blue-900 font-bold group-hover:bg-yellow-100 transition-colors">
-                  <div className="flex flex-wrap gap-x-2 gap-y-1">
-                    {teacher.mobile === '-' ? '-' : 
-                      teacher.mobile.split('/').map((num, idx, arr) => (
-                        <React.Fragment key={idx}>
-                          <a 
-                            href={`tel:${convertBengaliToStandard(num.replace(/[-\s]/g, ''))}`} 
-                            className="inline-flex items-center gap-1 hover:text-blue-600 hover:underline transition-all"
-                          >
-                            {num.trim()}
-                          </a>
-                          {idx < arr.length - 1 && <span className="text-gray-400">/</span>}
-                        </React.Fragment>
-                      ))
-                    }
-                  </div>
-                </td>
-                <td className="bg-blue-100 p-4 rounded-r-2xl border-y border-r border-blue-200 h-14 text-blue-900 font-bold group-hover:bg-blue-200 transition-colors">
-                  {teacher.subject}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
-
   return (
-    <section id="faculty" className="pt-8 pb-24 bg-blue-50/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-blue-900 text-sm font-black uppercase tracking-widest mb-4">আমাদের অভিজ্ঞ ও দক্ষ</h2>
-          <h3 className="text-4xl md:text-5xl font-black text-blue-900"> শিক্ষকদের প্যানেল</h3>
+    <section id="faculty" className="pt-4 pb-24 bg-blue-50/30">
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-blue-900 text-sm md:text-base font-black uppercase tracking-widest mb-2">আমাদের অভিজ্ঞ ও দক্ষ</h2>
+          <h3 className="text-4xl md:text-6xl font-black text-blue-900 tracking-tighter">শিক্ষকদের প্যানেল</h3>
         </div>
 
-        <div className="mb-12">
-          <Table data={TEACHER_LIST_DATA.slice(0, 10)} />
+        {/* Table Header */}
+        <div className="grid grid-cols-12 gap-1 mb-4 sticky top-0 z-10">
+          <div className="col-span-3 bg-[#1e3a8a] text-white py-3 md:py-4 px-2 md:px-6 rounded-l-2xl font-black text-[10px] md:text-lg flex items-center justify-center md:justify-start">
+            নাম
+          </div>
+          <div className="col-span-6 bg-[#facc15] text-blue-900 py-3 md:py-4 px-2 md:px-6 font-black text-[10px] md:text-lg flex items-center justify-center md:justify-start">
+            মোবাইল নাম্বার
+          </div>
+          <div className="col-span-3 bg-[#2563eb] text-white py-3 md:py-4 px-2 md:px-6 rounded-r-2xl font-black text-[10px] md:text-lg flex items-center justify-center md:justify-start">
+            শ্রেণী/বিষয়
+          </div>
+        </div>
+
+        {/* Table Rows */}
+        <div className="space-y-3 mb-12">
+          {TEACHER_LIST_DATA.slice(0, 10).map((teacher) => (
+            <motion.div 
+              key={teacher.id}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="grid grid-cols-12 gap-1 group"
+            >
+              <div className="col-span-3 bg-[#e0f2fe] text-[#1e3a8a] py-3 md:py-4 px-2 md:px-6 rounded-l-2xl font-black text-[10px] md:text-base flex items-center justify-center md:justify-start group-hover:bg-blue-100 transition-colors">
+                {teacher.name}
+              </div>
+              <div className="col-span-6 bg-[#fefce8] text-[#1e3a8a] py-3 md:py-4 px-2 md:px-6 font-black text-[10px] md:text-base flex items-center justify-center md:justify-start group-hover:bg-yellow-50 transition-colors overflow-hidden">
+                {teacher.mobile === '-' ? (
+                  <span>-</span>
+                ) : (
+                  <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
+                    {teacher.mobile.split('/').map((num, idx) => (
+                      <React.Fragment key={idx}>
+                        <a 
+                          href={`tel:${convertBengaliToStandard(num.replace(/[-\s()]/g, ''))}`}
+                          className="hover:text-blue-600 transition-colors"
+                        >
+                          {num.trim()}
+                        </a>
+                        {idx < teacher.mobile.split('/').length - 1 && <span className="text-gray-400 mx-0.5 md:mx-1">/</span>}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="col-span-3 bg-[#e0f2fe] text-[#1e3a8a] py-3 md:py-4 px-2 md:px-6 rounded-r-2xl font-black text-[10px] md:text-base flex items-center justify-center md:justify-start group-hover:bg-blue-100 transition-colors">
+                {teacher.subject}
+              </div>
+            </motion.div>
+          ))}
         </div>
 
         <div className="text-center">
-            <button 
-              onClick={() => setShowAll(true)}
-              className="bg-blue-900 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-blue-800 transition-all shadow-xl shadow-blue-900/20 active:scale-95"
-            >
-              Search Your Teachers (48)
-            </button>
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowAll(true)}
+            className="bg-[#1e3a8a] text-white px-12 py-5 rounded-2xl font-black text-lg md:text-xl shadow-[0_10px_30px_rgba(30,58,138,0.3)] flex items-center gap-3 mx-auto group"
+          >
+            Search Your Teachers (48)
+          </motion.button>
         </div>
       </div>
 
@@ -1322,11 +1468,11 @@ const GeneralFaculty = () => {
               initial={{ opacity: 0, scale: 0.9, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              className="relative bg-white/90 backdrop-blur-md rounded-[3rem] shadow-2xl max-w-6xl w-full overflow-hidden flex flex-col border border-white/20"
+              className="relative bg-white/90 backdrop-blur-md rounded-[3rem] shadow-2xl max-w-6xl w-full overflow-hidden flex flex-col border border-white/20 h-[90vh]"
             >
               <div className="bg-blue-900 p-8 sm:p-10 text-white flex justify-between items-center">
                 <div>
-                  <h4 className="text-3xl sm:text-4xl font-black"> শিক্ষকদের প্যানেল তালিকা</h4>
+                  <h4 className="text-3xl sm:text-4xl font-black">শিক্ষকদের প্যানেল তালিকা</h4>
                   <p className="text-blue-200 font-bold mt-2">Total Teachers: 48</p>
                 </div>
                 <button 
@@ -1336,8 +1482,58 @@ const GeneralFaculty = () => {
                   <X size={32} />
                 </button>
               </div>
-              <div className="p-6 sm:p-10 overflow-y-auto custom-scrollbar">
-                <Table data={TEACHER_LIST_DATA} isModal={true} />
+              <div className="p-4 md:p-10 overflow-y-auto custom-scrollbar flex-grow bg-blue-50/30">
+                {/* Table Header for Modal */}
+                <div className="grid grid-cols-12 gap-1 mb-4 sticky top-0 z-10">
+                  <div className="col-span-3 bg-[#1e3a8a] text-white py-3 md:py-4 px-2 md:px-6 rounded-l-2xl font-black text-[10px] md:text-lg flex items-center">
+                    নাম
+                  </div>
+                  <div className="col-span-6 bg-[#facc15] text-blue-900 py-3 md:py-4 px-2 md:px-6 font-black text-[10px] md:text-lg flex items-center">
+                    মোবাইল নাম্বার
+                  </div>
+                  <div className="col-span-3 bg-[#2563eb] text-white py-3 md:py-4 px-2 md:px-6 rounded-r-2xl font-black text-[10px] md:text-lg flex items-center">
+                    শ্রেণী/বিষয়
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  {TEACHER_LIST_DATA.map((teacher, idx) => (
+                    <motion.div 
+                      key={teacher.id}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: (idx % 10) * 0.05 }}
+                      className="grid grid-cols-12 gap-1 group"
+                    >
+                      <div className="col-span-3 bg-white text-[#1e3a8a] py-3 md:py-4 px-2 md:px-6 rounded-l-2xl font-black text-[10px] md:text-base flex items-center group-hover:bg-blue-50 transition-colors border-y border-l border-blue-100">
+                        {teacher.name}
+                      </div>
+                      <div className="col-span-6 bg-white text-[#1e3a8a] py-3 md:py-4 px-2 md:px-6 font-black text-[10px] md:text-base flex items-center justify-center md:justify-start group-hover:bg-yellow-50 transition-colors border-y border-blue-100 overflow-hidden">
+                        {teacher.mobile === '-' ? (
+                          <span>-</span>
+                        ) : (
+                          <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
+                            {teacher.mobile.split('/').map((num, idx) => (
+                              <React.Fragment key={idx}>
+                                <a 
+                                  href={`tel:${convertBengaliToStandard(num.replace(/[-\s()]/g, ''))}`}
+                                  className="hover:text-blue-600 transition-colors"
+                                >
+                                  {num.trim()}
+                                </a>
+                                {idx < teacher.mobile.split('/').length - 1 && <span className="text-gray-400 mx-0.5 md:mx-1">/</span>}
+                              </React.Fragment>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="col-span-3 bg-white text-[#1e3a8a] py-3 md:py-4 px-2 md:px-6 rounded-r-2xl font-black text-[10px] md:text-base flex items-center group-hover:bg-blue-50 transition-colors border-y border-r border-blue-100">
+                        {teacher.subject}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
             </motion.div>
           </div>
@@ -1382,7 +1578,7 @@ const ITDepartment = () => {
   const [selectedMember, setSelectedMember] = useState<typeof IT_TEAM[0] | null>(null);
 
   return (
-    <section className="pt-8 pb-24 bg-slate-50 relative overflow-hidden border-y border-slate-200/60">
+    <section className="pt-4 pb-24 bg-slate-50 relative overflow-hidden border-y border-slate-200/60">
       {/* Background design */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
         <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-200/30 rounded-full blur-[100px]"></div>
@@ -1420,7 +1616,7 @@ const ITDepartment = () => {
           {IT_TEAM.map((member, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
@@ -1521,11 +1717,11 @@ const ITDepartment = () => {
   );
 };
 
-const BlogSection = ({ onImageClick }: { onImageClick: (src: string) => void }) => {
+const BlogSection = ({ onImageClick }: { onImageClick: (src: string, caption?: string) => void }) => {
   const [showAllBlogs, setShowAllBlogs] = useState(false);
 
   return (
-    <section id="blog" className="pt-8 pb-24 bg-white">
+    <section id="blog" className="pt-4 pb-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-16">
           <div className="max-w-xl text-left">
@@ -1962,7 +2158,7 @@ const AdmissionForm = () => {
   };
 
   return (
-    <section id="admission" className="pt-8 pb-24 bg-blue-50 relative overflow-hidden">
+    <section id="admission" className="pt-4 pb-24 bg-blue-50 relative overflow-hidden">
       <div className="max-w-4xl mx-auto px-4 relative z-10">
         <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-blue-100">
           <div className="bg-blue-900 p-12 text-white text-center">
@@ -2138,7 +2334,7 @@ const AdmissionForm = () => {
 const Sponsors = () => {
   const adText = "আপনার প্রতিষ্ঠানের বিজ্ঞাপন দিতে STAR KIDS কতৃপক্ষের সাথে যোগাযোগ করুন";
   return (
-    <section className="py-16 bg-white border-y border-gray-100 overflow-hidden">
+    <section className="pt-4 pb-16 bg-white border-y border-gray-100 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 mb-8 text-center">
         <h4 className="text-xs font-black text-blue-900 uppercase tracking-[0.3em]"> বিজ্ঞাপন </h4>
       </div>
@@ -2166,7 +2362,7 @@ const Sponsors = () => {
 
 const SocialLinks = () => {
   return (
-    <section className="pt-8 pb-24 bg-white">
+    <section className="pt-4 pb-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 text-center">
         <div className="mb-12">
           <h3 className="text-4xl font-black text-blue-900 mb-2">সোশ্যাল মিডিয়ায়</h3>
@@ -2256,7 +2452,7 @@ const DesignerInfo = () => {
   );
 };
 
-const Footer = ({ onImageClick }: { onImageClick: (src: string) => void }) => {
+const Footer = ({ onImageClick }: { onImageClick: (src: string, caption?: string) => void }) => {
   const logoUrl = "https://i.imgur.com/PmCP59l.png";
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -2454,7 +2650,9 @@ const LoadingScreen = () => {
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [lightboxCaption, setLightboxCaption] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [isFreeClassModalOpen, setIsFreeClassModalOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -2463,10 +2661,23 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  const openLightbox = (src: string) => setLightboxImage(src);
-  const closeLightbox = () => setLightboxImage(null);
+  const openLightbox = (src: string, caption?: string) => {
+    setLightboxImage(src);
+    setLightboxCaption(caption || null);
+  };
+  const closeLightbox = () => {
+    setLightboxImage(null);
+    setLightboxCaption(null);
+  };
   const openVideo = (url: string) => setVideoUrl(url);
   const closeVideo = () => setVideoUrl(null);
+
+  const scrollToAdmission = () => {
+    const element = document.getElementById('admission');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white font-sans selection:bg-yellow-200 selection:text-blue-900">
@@ -2482,9 +2693,9 @@ export default function App() {
         <ClassesSection />
         <CoursesSection />
         <Administration onImageClick={openLightbox} />
-        <div className="h-12 bg-white" />
+        <ChiefCoordinatorSection onImageClick={openLightbox} />
         <ExperiencedTeachers onImageClick={openLightbox} />
-        <ClassTeachers onImageClick={openLightbox} />
+        <ClassTeachers onImageClick={openLightbox} onFreeClassClick={() => setIsFreeClassModalOpen(true)} />
         <GeneralFaculty />
         <ITDepartment />
         <BlogSection onImageClick={openLightbox} />
@@ -2497,8 +2708,15 @@ export default function App() {
       
       <ImageLightbox 
         src={lightboxImage} 
+        caption={lightboxCaption}
         isOpen={!!lightboxImage} 
         onClose={closeLightbox} 
+      />
+
+      <FreeClassModal 
+        isOpen={isFreeClassModalOpen}
+        onClose={() => setIsFreeClassModalOpen(false)}
+        onConfirm={scrollToAdmission}
       />
 
       <VideoModal 
