@@ -1192,71 +1192,105 @@ const ChiefCoordinatorSection = ({ onImageClick }: { onImageClick: (src: string,
           <div className="w-32 h-1.5 bg-yellow-400 rounded-full"></div>
         </div>
 
-        <div className="max-w-sm mx-auto">
+        <div className="max-w-4xl mx-auto">
           <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          whileHover={{ y: -10 }}
-          className="bg-white rounded-[3rem] shadow-[0_20px_40px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100 cursor-pointer group relative"
-          onClick={() => onImageClick('https://i.imgur.com/JnVQU7z.jpeg', 'অ্যাডমিন, STAR KIDS')}
-        >
-          {/* Top Part: Image with Overlay Text */}
-          <div className="relative h-[350px] w-full overflow-hidden bg-[#2d0a4e]">
-            <img 
-              src="https://i.imgur.com/JnVQU7z.jpeg" 
-              alt="অ্যাডমিন" 
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-              referrerPolicy="no-referrer"
-            />
-            {/* Gradient Overlay for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#2d0a4e] via-transparent to-transparent opacity-90"></div>
-            
-            {/* Arrow Icon at top right to toggle mobile */}
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowMobile(!showMobile);
-              }}
-              className={`absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 z-10 border border-white/10 ${
-                showMobile ? 'bg-yellow-400 text-blue-900 rotate-180' : 'bg-black/40 backdrop-blur-md text-white hover:bg-black/60'
-              }`}
-            >
-              <ChevronDown size={20} />
-            </button>
-
-            {/* Text Overlay */}
-            <div className="absolute bottom-8 left-8 right-8">
-              <h4 className="text-2xl md:text-3xl font-black text-white mb-1 tracking-tight">এ.কে.এম শরিফুজ্জামান</h4>
-              <p className="text-yellow-400 font-black text-base">অ্যাডমিন, STAR KIDS</p>
-            </div>
-          </div>
-
-          {/* Bottom Part: Mobile Box (Conditional) */}
-          <AnimatePresence>
-            {showMobile && (
-              <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="bg-white overflow-hidden"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-white rounded-[3rem] shadow-[0_30px_60px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100 cursor-pointer group relative flex flex-col md:flex-row"
+            onClick={() => onImageClick('https://i.imgur.com/JnVQU7z.jpeg', 'অ্যাডমিন, STAR KIDS')}
+          >
+            {/* Image Part */}
+            <div className="relative h-[350px] md:h-[500px] w-full md:w-1/2 overflow-hidden bg-[#2d0a4e]">
+              <img 
+                src="https://i.imgur.com/JnVQU7z.jpeg" 
+                alt="অ্যাডমিন" 
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                referrerPolicy="no-referrer"
+              />
+              {/* Zoom Icon Overlay */}
+              <div className="absolute inset-0 bg-yellow-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <div className="bg-yellow-400 p-3 rounded-full shadow-lg transform scale-0 group-hover:scale-100 transition-transform duration-300">
+                  <ZoomIn className="text-blue-900 w-6 h-6" />
+                </div>
+              </div>
+              
+              {/* Mobile Toggle Button (Only visible/needed on mobile) */}
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMobile(!showMobile);
+                }}
+                className={`absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 z-10 border border-white/10 md:hidden ${
+                  showMobile ? 'bg-yellow-400 text-blue-900 rotate-180' : 'bg-black/40 backdrop-blur-md text-white hover:bg-black/60'
+                }`}
               >
-                <div className="p-10 pt-0 mt-10">
-                  <div className="bg-[#f0f7ff] rounded-[2rem] p-5 flex items-center gap-4 border border-blue-50">
-                    <div className="w-12 h-12 bg-blue-600 rounded-[1rem] flex items-center justify-center text-white shadow-lg shadow-blue-600/30 shrink-0">
-                      <Phone size={22} strokeWidth={2.5} />
+                <ChevronDown size={20} />
+              </button>
+
+              {/* Text Overlay for Mobile (Hidden on Desktop) */}
+              <div className="absolute bottom-8 left-8 right-8 md:hidden">
+                <h4 className="text-2xl font-black text-white mb-1 tracking-tight">এ.কে.এম শরিফুজ্জামান</h4>
+                <p className="text-yellow-400 font-black text-base">অ্যাডমিন, STAR KIDS</p>
+              </div>
+            </div>
+
+            {/* Content Part (Desktop/Tablet) */}
+            <div className="hidden md:flex w-1/2 p-12 flex-col justify-center bg-gradient-to-br from-white to-blue-50/30">
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-blue-600 font-black text-sm uppercase tracking-[0.3em] mb-3">পরিচালনা পর্ষদ</h2>
+                  <h4 className="text-4xl md:text-5xl font-black text-[#1e3a8a] mb-2 tracking-tight leading-tight">
+                    এ.কে.এম <br /> শরিফুজ্জামান
+                  </h4>
+                  <div className="inline-block bg-yellow-400 text-blue-900 px-4 py-1.5 rounded-full font-black text-sm mt-2">
+                    অ্যাডমিন, STAR KIDS
+                  </div>
+                </div>
+                
+                <p className="text-gray-600 text-lg leading-relaxed">
+                  স্টার কিডস্ এর সার্বিক পরিচালনা এবং প্রশাসনিক দিকনির্দেশনায় নিরলসভাবে কাজ করে যাচ্ছেন। তাঁর সুদক্ষ নেতৃত্বে প্রতিষ্ঠানটি আজ এক অনন্য উচ্চতায় পৌঁছেছে।
+                </p>
+
+                <div className="pt-4">
+                  <div className="bg-white rounded-3xl p-6 flex items-center gap-5 border border-blue-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
+                      <Phone size={28} strokeWidth={2.5} />
                     </div>
                     <div>
-                      <p className="text-blue-400 font-black text-[9px] md:text-[10px] uppercase tracking-[0.2em] mb-0.5">মোবাইল নম্বর</p>
-                      <p className="text-[#1e3a8a] font-black text-lg md:text-xl">01712994462</p>
+                      <p className="text-blue-400 font-black text-xs uppercase tracking-[0.2em] mb-1">সরাসরি যোগাযোগ</p>
+                      <p className="text-[#1e3a8a] font-black text-2xl">01712994462</p>
                     </div>
                   </div>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      </div>
+              </div>
+            </div>
+
+            {/* Mobile Contact Info (Conditional) */}
+            <AnimatePresence>
+              {showMobile && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="bg-white overflow-hidden md:hidden"
+                >
+                  <div className="p-10 pt-0 mt-10">
+                    <div className="bg-[#f0f7ff] rounded-[2rem] p-5 flex items-center gap-4 border border-blue-50">
+                      <div className="w-12 h-12 bg-blue-600 rounded-[1rem] flex items-center justify-center text-white shadow-lg shadow-blue-600/30 shrink-0">
+                        <Phone size={22} strokeWidth={2.5} />
+                      </div>
+                      <div>
+                        <p className="text-blue-400 font-black text-[9px] md:text-[10px] uppercase tracking-[0.2em] mb-0.5">মোবাইল নম্বর</p>
+                        <p className="text-[#1e3a8a] font-black text-lg md:text-xl">01712994462</p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </div>
     </div>
   </section>
 );
@@ -1271,7 +1305,7 @@ const ExperiencedTeachers = ({ onImageClick }: { onImageClick: (src: string, cap
         <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-yellow-200/20 blur-[120px] rounded-full"></div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 relative z-10">
         {/* Header Section */}
         <div className="text-center mb-16 flex flex-col items-center">
           <h2 className="text-[#ff7e5f] text-lg font-black mb-2 tracking-tight">STAR KIDS এর</h2>
@@ -1281,27 +1315,33 @@ const ExperiencedTeachers = ({ onImageClick }: { onImageClick: (src: string, cap
           <div className="w-32 h-1.5 bg-yellow-400 rounded-full"></div>
         </div>
 
-        {/* Grid Section - 2 columns on all devices */}
-        <div className="grid grid-cols-2 gap-4 md:gap-10">
+        {/* Grid Section - 2 columns on mobile, 3 on desktop/tablet */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
           {EXPERIENCED_TEACHERS.map((teacher, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              whileHover={{ y: -10 }}
-              className="bg-white p-3 md:p-8 rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.08)] flex flex-col items-center text-center border border-blue-50 cursor-pointer group"
-              onClick={() => onImageClick(teacher.image, teacher.name)}
-            >
-              {/* Purple Image Container */}
-              <div className="w-full aspect-square bg-[#2d0a4e] rounded-xl md:rounded-2xl overflow-hidden mb-2 md:mb-4 relative">
-                <img 
-                  src={teacher.image} 
-                  alt={teacher.name} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                  referrerPolicy="no-referrer" 
-                />
-              </div>
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                whileHover={{ y: -10 }}
+                className="bg-white p-3 md:p-6 rounded-[2.5rem] md:rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.08)] flex flex-col items-center text-center border border-blue-50 hover:border-yellow-500 transition-all duration-300 cursor-pointer group"
+                onClick={() => onImageClick(teacher.image, teacher.name)}
+              >
+                {/* Purple Image Container */}
+                <div className="w-full aspect-square bg-[#2d0a4e] rounded-xl md:rounded-2xl overflow-hidden mb-2 md:mb-4 relative">
+                  <img 
+                    src={teacher.image} 
+                    alt={teacher.name} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                    referrerPolicy="no-referrer" 
+                  />
+                  {/* Zoom Icon Overlay */}
+                  <div className="absolute inset-0 bg-yellow-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <div className="bg-yellow-400 p-2 md:p-3 rounded-full shadow-lg transform scale-0 group-hover:scale-100 transition-transform duration-300">
+                      <ZoomIn className="text-blue-900 w-5 h-5 md:w-6 md:h-6" />
+                    </div>
+                  </div>
+                </div>
 
               {/* Text Content */}
               <h4 className="text-xl md:text-2xl font-black text-[#1e3a8a] mb-0.5 md:mb-1">{teacher.name}</h4>
