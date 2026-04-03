@@ -1242,7 +1242,6 @@ const ChiefCoordinatorSection = ({ onImageClick }: { onImageClick: (src: string,
             <div className="hidden md:flex w-1/2 p-8 flex-col justify-center bg-gradient-to-br from-white to-blue-50/30">
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-blue-600 font-black text-sm uppercase tracking-[0.3em] mb-3">পরিচালনা পর্ষদ</h2>
                   <h4 className="text-3xl md:text-4xl font-black text-[#1e3a8a] mb-2 tracking-tight leading-tight">
                     এ.কে.এম <br /> শরিফুজ্জামান
                   </h4>
