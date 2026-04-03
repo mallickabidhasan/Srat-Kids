@@ -1141,7 +1141,7 @@ const Administration = ({ onImageClick }: { onImageClick: (src: string, caption?
           <h3 className="text-4xl md:text-6xl font-black leading-tight">নেতৃত্ব ও দিকনির্দেশনায়</h3>
         </div>
         
-        <div className="flex flex-col gap-16">
+        <div className="flex flex-col md:flex-row gap-16 md:gap-12 justify-center">
           {ADMINS.map((admin, index) => (
             <motion.div
               key={index}
@@ -1152,7 +1152,7 @@ const Administration = ({ onImageClick }: { onImageClick: (src: string, caption?
               onClick={() => onImageClick(admin.image, admin.name)}
             >
               {/* Image Container with Blurred Border / Glow Effect */}
-              <div className="relative aspect-square w-full mb-6 rounded-3xl overflow-hidden border-2 border-white/10 group-hover:border-yellow-400/40 transition-all duration-500 shadow-[0_0_30px_rgba(255,255,255,0.15)] group-hover:shadow-[0_0_60px_rgba(250,204,21,0.4)] bg-blue-950">
+              <div className="relative aspect-square w-full mb-6 rounded-3xl overflow-hidden border-2 border-white/10 group-hover:border-yellow-500 transition-all duration-500 shadow-[0_0_30px_rgba(255,255,255,0.15)] group-hover:shadow-[0_0_60px_rgba(250,204,21,0.6)] bg-blue-950">
                 <img 
                   src={admin.image} 
                   alt={admin.name} 
