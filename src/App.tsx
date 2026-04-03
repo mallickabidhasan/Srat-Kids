@@ -1192,7 +1192,7 @@ const ChiefCoordinatorSection = ({ onImageClick }: { onImageClick: (src: string,
           <div className="w-32 h-1.5 bg-yellow-400 rounded-full"></div>
         </div>
 
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -1201,13 +1201,16 @@ const ChiefCoordinatorSection = ({ onImageClick }: { onImageClick: (src: string,
             onClick={() => onImageClick('https://i.imgur.com/JnVQU7z.jpeg', 'অ্যাডমিন, STAR KIDS')}
           >
             {/* Image Part */}
-            <div className="relative h-[350px] md:h-[500px] w-full md:w-1/2 overflow-hidden bg-[#2d0a4e]">
+            <div className="relative h-[350px] md:h-[420px] w-full md:w-1/2 overflow-hidden bg-[#2d0a4e]">
               <img 
                 src="https://i.imgur.com/JnVQU7z.jpeg" 
                 alt="অ্যাডমিন" 
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 referrerPolicy="no-referrer"
               />
+              {/* Gradient Overlay for text readability on mobile */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent md:hidden"></div>
+              
               {/* Zoom Icon Overlay */}
               <div className="absolute inset-0 bg-yellow-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                 <div className="bg-yellow-400 p-3 rounded-full shadow-lg transform scale-0 group-hover:scale-100 transition-transform duration-300">
@@ -1236,11 +1239,11 @@ const ChiefCoordinatorSection = ({ onImageClick }: { onImageClick: (src: string,
             </div>
 
             {/* Content Part (Desktop/Tablet) */}
-            <div className="hidden md:flex w-1/2 p-12 flex-col justify-center bg-gradient-to-br from-white to-blue-50/30">
+            <div className="hidden md:flex w-1/2 p-8 flex-col justify-center bg-gradient-to-br from-white to-blue-50/30">
               <div className="space-y-6">
                 <div>
                   <h2 className="text-blue-600 font-black text-sm uppercase tracking-[0.3em] mb-3">পরিচালনা পর্ষদ</h2>
-                  <h4 className="text-4xl md:text-5xl font-black text-[#1e3a8a] mb-2 tracking-tight leading-tight">
+                  <h4 className="text-3xl md:text-4xl font-black text-[#1e3a8a] mb-2 tracking-tight leading-tight">
                     এ.কে.এম <br /> শরিফুজ্জামান
                   </h4>
                   <div className="inline-block bg-yellow-400 text-blue-900 px-4 py-1.5 rounded-full font-black text-sm mt-2">
@@ -1248,18 +1251,14 @@ const ChiefCoordinatorSection = ({ onImageClick }: { onImageClick: (src: string,
                   </div>
                 </div>
                 
-                <p className="text-gray-600 text-lg leading-relaxed">
-                  স্টার কিডস্ এর সার্বিক পরিচালনা এবং প্রশাসনিক দিকনির্দেশনায় নিরলসভাবে কাজ করে যাচ্ছেন। তাঁর সুদক্ষ নেতৃত্বে প্রতিষ্ঠানটি আজ এক অনন্য উচ্চতায় পৌঁছেছে।
-                </p>
-
-                <div className="pt-4">
-                  <div className="bg-white rounded-3xl p-6 flex items-center gap-5 border border-blue-100 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
-                      <Phone size={28} strokeWidth={2.5} />
+                <div className="pt-2">
+                  <div className="bg-white rounded-3xl p-5 flex items-center gap-4 border border-blue-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
+                      <Phone size={24} strokeWidth={2.5} />
                     </div>
                     <div>
-                      <p className="text-blue-400 font-black text-xs uppercase tracking-[0.2em] mb-1">সরাসরি যোগাযোগ</p>
-                      <p className="text-[#1e3a8a] font-black text-2xl">01712994462</p>
+                      <p className="text-blue-400 font-black text-[10px] uppercase tracking-[0.2em] mb-0.5">সরাসরি যোগাযোগ</p>
+                      <p className="text-[#1e3a8a] font-black text-xl">01712994462</p>
                     </div>
                   </div>
                 </div>
