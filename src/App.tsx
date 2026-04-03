@@ -121,10 +121,10 @@ interface BlogPost {
 // --- Data ---
 const BENGALI_CLASSES = [
   'শ্রেণী ১', 'শ্রেণী ২', 'শ্রেণী ৩', 'শ্রেণী ৪', 'শ্রেণী ৫',
-  'শ্রেণী ৬', 'শ্রেণী ৭', 'শ্রেণী ৮', 'শ্রেণী ৯', 'শ্রেণী ১০'
+  'শ্রেণী ৬', 'ক্যাডেট', 'শ্রেণী ৭', 'শ্রেণী ৮', 'শ্রেণী ৯', 'শ্রেণী ১০'
 ];
 
-const CLASSES = Array.from({ length: 10 }, (_, i) => ({
+const CLASSES = Array.from({ length: 11 }, (_, i) => ({
   id: i + 1,
   name: BENGALI_CLASSES[i],
   description: `${BENGALI_CLASSES[i]}র শিক্ষার্থীদের জন্য বিশেষ পাঠ্যক্রম, যা তাদের মেধা ও নৈতিক বিকাশে সহায়ক।`,
@@ -273,6 +273,20 @@ const TEACHER_LIST_DATA = Array.from({ length: 48 }, (_, i) => ({
   subject: TEACHER_SUBJECTS[i] || '',
   mobile: TEACHER_MOBILES[i] || ''
 }));
+
+const FEES_DATA = [
+  { class: '১ম শ্রেণী', monthly: '১২০০৳', admission: '১৫০০৳', total: '২৭০০৳' },
+  { class: '২য় শ্রেণী', monthly: '১২০০৳', admission: '১৫০০৳', total: '২৭০০৳' },
+  { class: '৩য় শ্রেণী', monthly: '১৪০০৳', admission: '২০০০৳', total: '৩৪০০৳' },
+  { class: '৪র্থ শ্রেণী', monthly: '১৪০০৳', admission: '২০০০৳', total: '৩৪০০৳' },
+  { class: '৫ম শ্রেণী', monthly: '১৫০০৳', admission: '২৫০০৳', total: '৪০০০৳' },
+  { class: '৬ষ্ঠ শ্রেণী', monthly: '১৫০০৳', admission: '২২০০৳', total: '৩৭০০৳' },
+  { class: 'ক্যাডেট', monthly: '৩৫০০৳', admission: '৩৫০০৳', total: '৭০০০৳' },
+  { class: '৭ম শ্রেণী', monthly: '১৫০০৳', admission: '২২০০৳', total: '৩৭০০৳' },
+  { class: '৮ম শ্রেণী', monthly: '১৫০০৳', admission: '২৩০০৳', total: '৩৮০০৳' },
+  { class: '৯ম শ্রেণী', monthly: '১৬০০৳', admission: '২৩০০৳', total: '৩৯০০৳' },
+  { class: '১০ম শ্রেণী', monthly: '১৬০০৳', admission: '২৩০০৳', total: '৩৯০০৳' },
+];
 
 const BLOG_POSTS: BlogPost[] = [
   { 
@@ -726,20 +740,20 @@ const Hero = ({
               আধুনিক পাঠদান ও নৈতিক শিক্ষার সমন্বয়ে আমরাই গড়বো আপনার সন্তানের উজ্জ্বল ভবিষ্যৎ। যেখানে আধুনিক শিক্ষা ও শেকড়ের মূল্যবোধের হাত ধরে শুরু হয় আগামীর পথচলা।
             </p>
           </div>
-          <div className="flex flex-row gap-3 items-center">
-            <button 
-              onClick={() => onVideoClick("https://www.facebook.com/reel/1447504966929955/")}
-              className="bg-yellow-400 text-blue-900 px-4 py-2.5 md:px-6 md:py-3 rounded-xl font-bold text-sm md:text-base hover:bg-yellow-300 transition-all transform hover:scale-105 shadow-lg shadow-yellow-400/20 whitespace-nowrap"
-            >
-              Explore Our Campus
-            </button>
-            <button 
-              onClick={() => onVideoClick("https://www.facebook.com/reel/863585792893727/")}
-              className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-4 py-2.5 md:px-6 md:py-3 rounded-xl font-bold text-sm md:text-base hover:bg-white/20 transition-all whitespace-nowrap"
-            >
-              Watch Video Tour
-            </button>
-          </div>
+        </div>
+        <div className="flex flex-row gap-2 md:gap-3 items-center justify-center mt-8">
+          <button 
+            onClick={() => onVideoClick("https://www.facebook.com/reel/1447504966929955/")}
+            className="bg-yellow-400 text-blue-900 px-3 py-2 md:px-6 md:py-3 rounded-xl font-bold text-[12px] md:text-base hover:bg-yellow-300 transition-all transform hover:scale-105 shadow-lg shadow-yellow-400/20 whitespace-nowrap"
+          >
+            Explore Our Campus
+          </button>
+          <button 
+            onClick={() => onVideoClick("https://www.facebook.com/reel/863585792893727/")}
+            className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-3 py-2 md:px-6 md:py-3 rounded-xl font-bold text-[12px] md:text-base hover:bg-white/20 transition-all whitespace-nowrap"
+          >
+            Watch Video Tour
+          </button>
         </div>
       </div>
 
@@ -1002,16 +1016,19 @@ const ClassesSection = () => {
             <span className="block">শ্রেণীভিত্তিক</span>
             <span>বিস্তারিত তথ্য</span>
           </h3>
+          <p className="text-[9px] md:text-sm font-black text-blue-900/60 mt-3 whitespace-nowrap bg-white/50 inline-block px-4 py-1.5 rounded-full border border-blue-100 shadow-sm">
+            আপনার প্রয়োজনীয় ক্লাসের উপর ক্লিক করে প্রতিদিনের তথ্য সংগ্রহ করুন
+          </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div className="flex flex-wrap justify-center gap-4 md:gap-6">
           {CLASSES.map((cls) => (
             <motion.button
               key={cls.id}
               whileHover={{ y: -5 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setSelectedClass(cls)}
-              className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-blue-100 group text-center"
+              className="w-[calc(50%-8px)] md:w-[calc(33.33%-16px)] lg:w-[calc(20%-20px)] bg-white p-6 md:p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-blue-100 group text-center"
             >
               <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-yellow-400 transition-colors">
                 <GraduationCap className="text-blue-900" size={32} />
@@ -1071,7 +1088,7 @@ const ClassesSection = () => {
 
 const CoursesSection = () => {
   return (
-    <section id="courses" className="pt-4 pb-24 bg-white">
+    <section id="courses" className="pt-16 pb-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-[#ff7e5f] text-sm md:text-base font-black uppercase tracking-widest mb-2">বিশেষ শিক্ষা কার্যক্রম</h2>
@@ -1259,7 +1276,7 @@ const ExperiencedTeachers = ({ onImageClick }: { onImageClick: (src: string, cap
         <div className="text-center mb-16 flex flex-col items-center">
           <h2 className="text-[#ff7e5f] text-lg font-black mb-2 tracking-tight">STAR KIDS এর</h2>
           <h3 className="text-3xl md:text-5xl font-black text-[#1e3a8a] mb-8 leading-tight">
-            অভিজ্ঞ ও বরেণ্য শিক্ষকমণ্ডলী
+            সিনিয়র শিক্ষকদের প্যানেল
           </h3>
           <div className="w-32 h-1.5 bg-yellow-400 rounded-full"></div>
         </div>
@@ -1416,7 +1433,7 @@ const GeneralFaculty = () => {
               <div className="col-span-3 bg-[#e0f2fe] text-[#1e3a8a] py-3 md:py-4 px-2 md:px-6 rounded-l-2xl font-black text-[10px] md:text-base flex items-center justify-center md:justify-start group-hover:bg-blue-100 transition-colors">
                 {teacher.name}
               </div>
-              <div className="col-span-6 bg-[#fefce8] text-[#1e3a8a] py-3 md:py-4 px-2 md:px-6 font-black text-[10px] md:text-base flex items-center justify-center md:justify-start group-hover:bg-yellow-50 transition-colors overflow-hidden">
+              <div className={`col-span-6 bg-[#fefce8] text-[#1e3a8a] py-3 md:py-4 px-2 md:px-6 font-black flex items-center justify-center md:justify-start group-hover:bg-yellow-50 transition-colors overflow-hidden ${teacher.mobile.includes('/') ? 'text-[8px] md:text-sm' : 'text-[10px] md:text-base'}`}>
                 {teacher.mobile === '-' ? (
                   <span>-</span>
                 ) : (
@@ -1509,7 +1526,7 @@ const GeneralFaculty = () => {
                       <div className="col-span-3 bg-white text-[#1e3a8a] py-3 md:py-4 px-2 md:px-6 rounded-l-2xl font-black text-[10px] md:text-base flex items-center group-hover:bg-blue-50 transition-colors border-y border-l border-blue-100">
                         {teacher.name}
                       </div>
-                      <div className="col-span-6 bg-white text-[#1e3a8a] py-3 md:py-4 px-2 md:px-6 font-black text-[10px] md:text-base flex items-center justify-center md:justify-start group-hover:bg-yellow-50 transition-colors border-y border-blue-100 overflow-hidden">
+                      <div className={`col-span-6 bg-white text-[#1e3a8a] py-3 md:py-4 px-2 md:px-6 font-black flex items-center justify-center md:justify-start group-hover:bg-yellow-50 transition-colors border-y border-blue-100 overflow-hidden ${teacher.mobile.includes('/') ? 'text-[8px] md:text-sm' : 'text-[10px] md:text-base'}`}>
                         {teacher.mobile === '-' ? (
                           <span>-</span>
                         ) : (
@@ -1957,7 +1974,7 @@ const VisitorCounter = () => {
       </div>
 
       {/* Interactive Box */}
-      <div className="bg-white py-16 px-4">
+      <div className="bg-white pt-16 pb-4 px-4">
         <div className="max-w-2xl mx-auto">
           <motion.button
             whileHover={{ scale: 1.02, y: -5 }}
@@ -2606,6 +2623,137 @@ const Footer = ({ onImageClick }: { onImageClick: (src: string, caption?: string
   );
 };
 
+const FeeModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-blue-900/60 backdrop-blur-xl"
+          ></motion.div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 40 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 40 }}
+            className="relative bg-white rounded-[3rem] shadow-2xl max-w-5xl w-full overflow-hidden flex flex-col border border-white/20 h-[85vh]"
+          >
+            <div className="bg-gradient-to-r from-blue-900 to-blue-800 p-8 text-white flex justify-between items-center shrink-0">
+              <div>
+                <h4 className="text-3xl font-black tracking-tight">বেতন ও ভর্তি/নোট ফি তালিকা</h4>
+                <p className="text-blue-200 font-bold mt-1">STAR KIDS - আপনার সন্তানের উজ্জ্বল ভবিষ্যৎ</p>
+              </div>
+              <button 
+                onClick={onClose} 
+                className="bg-white/10 hover:bg-white/20 p-3 rounded-2xl transition-all active:scale-90"
+              >
+                <X size={32} />
+              </button>
+            </div>
+            
+            <div className="p-6 md:p-10 overflow-y-auto custom-scrollbar flex-grow bg-blue-50/30">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {FEES_DATA.map((item, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="bg-white rounded-3xl p-6 shadow-sm border border-blue-100 hover:shadow-xl transition-all group"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h5 className="text-xl font-black text-blue-900">{item.class}</h5>
+                      <div className="w-10 h-10 bg-yellow-400/20 rounded-xl flex items-center justify-center text-yellow-600">
+                        <BookOpen size={20} />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-500 font-bold">মাসিক বেতন</span>
+                        <span className="text-blue-900 font-black">{item.monthly}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-500 font-bold">ভর্তি/নোট ফি</span>
+                        <span className="text-blue-900 font-black">{item.admission}</span>
+                      </div>
+                      <div className="pt-3 border-t border-dashed border-blue-100 flex justify-between items-center">
+                        <span className="text-blue-900 font-black">মোট</span>
+                        <span className="text-xl font-black text-yellow-600">{item.total}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="p-6 bg-white border-t border-blue-50 text-center shrink-0">
+              <p className="text-blue-900/60 text-sm font-bold">
+                * বিশেষ প্রয়োজনে অফিস কর্তৃপক্ষের সাথে যোগাযোগ করুন
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const FeeSection = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  return (
+    <section className="pb-12 bg-white">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-md mx-auto relative">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setIsModalOpen(true)}
+            className="w-full bg-gradient-to-br from-blue-900 to-blue-800 p-8 rounded-[2.5rem] shadow-2xl text-center group relative overflow-hidden"
+          >
+            {/* Decorative background elements */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-yellow-400/20 transition-all"></div>
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-400/10 rounded-full -ml-16 -mb-16 blur-2xl group-hover:bg-blue-400/20 transition-all"></div>
+            
+            <div className="relative z-10">
+              <p className="text-blue-200 text-lg font-bold mb-1">সকল শ্রেণীর প্রতি মাসের</p>
+              <h4 className="text-white text-3xl font-black tracking-tight">বেতন ও ভর্তি/নোট ফি</h4>
+              
+              <div className="mt-6 flex items-center justify-center gap-2 text-yellow-400 font-black">
+                <span className="text-sm uppercase tracking-widest">বিস্তারিত দেখতে ক্লিক করুন</span>
+                <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* Animated Click Icon */}
+            <motion.div
+              animate={{
+                x: [20, -10, 20],
+                y: [20, -10, 20],
+                scale: [1, 0.8, 1],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="absolute bottom-4 right-4 text-yellow-400 opacity-80 pointer-events-none"
+            >
+              <MousePointer2 size={40} fill="currentColor" />
+            </motion.div>
+          </motion.button>
+        </div>
+      </div>
+      
+      <FeeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+    </section>
+  );
+};
+
 const LoadingScreen = () => {
   const logoUrl = "https://i.imgur.com/PmCP59l.png";
   return (
@@ -2700,6 +2848,7 @@ export default function App() {
         <ITDepartment />
         <BlogSection onImageClick={openLightbox} />
         <VisitorCounter />
+        <FeeSection />
         <AdmissionForm />
         <Sponsors />
         <SocialLinks />
