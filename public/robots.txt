@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ais-pre-bsqsqzqpgeqphlneakfvtr-612816990113.asia-east1.run.app/sitemap.xml
+Sitemap: https://starkidsbd.netlify.app/sitemap.xml
