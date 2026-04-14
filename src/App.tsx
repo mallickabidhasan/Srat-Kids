@@ -37,6 +37,7 @@ import {
 import { motion, AnimatePresence, animate, useInView } from 'framer-motion';
 import { db, auth } from './firebase';
 import { collection, addDoc, serverTimestamp, getDocFromServer, doc, runTransaction, setDoc } from 'firebase/firestore';
+import StarAIChat from './components/StarAIChat';
 
 enum OperationType {
   CREATE = 'create',
@@ -101,6 +102,13 @@ async function testConnection() {
 testConnection();
 
 // --- Types ---
+interface Class {
+  id: number;
+  name: string;
+  description: string;
+  subjects: string[] | Record<string, string[]>;
+}
+
 interface Teacher {
   id: number;
   name: string;
@@ -124,12 +132,82 @@ const BENGALI_CLASSES = [
   'শ্রেণী ৬', 'ক্যাডেট', 'শ্রেণী ৭', 'শ্রেণী ৮', 'শ্রেণী ৯', 'শ্রেণী ১০'
 ];
 
-const CLASSES = Array.from({ length: 11 }, (_, i) => ({
-  id: i + 1,
-  name: BENGALI_CLASSES[i],
-  description: `${BENGALI_CLASSES[i]}র শিক্ষার্থীদের জন্য বিশেষ পাঠ্যক্রম, যা তাদের মেধা ও নৈতিক বিকাশে সহায়ক।`,
-  subjects: ['Mathematics', 'Science', 'English', 'Social Studies', 'Arts'],
-}));
+const CLASSES: Class[] = [
+  {
+    id: 1,
+    name: 'শ্রেণী ১',
+    description: 'শ্রেণী ১র শিক্ষার্থীদের জন্য বিশেষ পাঠ্যক্রম, যা তাদের মেধা ও নৈতিক বিকাশে সহায়ক।',
+    subjects: ['আমার বাংলা বই', 'English for Today', 'প্রাথমিক গণিত']
+  },
+  {
+    id: 2,
+    name: 'শ্রেণী ২',
+    description: 'শ্রেণী ২র শিক্ষার্থীদের জন্য বিশেষ পাঠ্যক্রম, যা তাদের মেধা ও নৈতিক বিকাশে সহায়ক।',
+    subjects: ['আমার বাংলা বই', 'English for Today', 'প্রাথমিক গণিত']
+  },
+  {
+    id: 3,
+    name: 'শ্রেণী ৩',
+    description: 'শ্রেণী ৩র শিক্ষার্থীদের জন্য বিশেষ পাঠ্যক্রম, যা তাদের মেধা ও নৈতিক বিকাশে সহায়ক।',
+    subjects: ['আমার বাংলা বই', 'English For Today', 'প্রাথমিক গণিত', 'বিজ্ঞান', 'বাংলাদেশ ও বিশ্বপরিচয়', 'ইসলাম শিক্ষা', 'হিন্দুধর্ম শিক্ষা']
+  },
+  {
+    id: 4,
+    name: 'শ্রেণী ৪',
+    description: 'শ্রেণী ৪র শিক্ষার্থীদের জন্য বিশেষ পাঠ্যক্রম, যা তাদের মেধা ও নৈতিক বিকাশে সহায়ক।',
+    subjects: ['আমার বাংলা বই', 'English For Today', 'প্রাথমিক গণিত', 'বিজ্ঞান', 'বাংলাদেশ ও বিশ্বপরিচয়', 'ইসলাম শিক্ষা', 'হিন্দুধর্ম শিক্ষা']
+  },
+  {
+    id: 5,
+    name: 'শ্রেণী ৫',
+    description: 'শ্রেণী ৫র শিক্ষার্থীদের জন্য বিশেষ পাঠ্যক্রম, যা তাদের মেধা ও নৈতিক বিকাশে সহায়ক।',
+    subjects: ['আমার বাংলা বই', 'English For Today', 'প্রাথমিক গণিত', 'বিজ্ঞান', 'বাংলাদেশ ও বিশ্বপরিচয়', 'ইসলাম শিক্ষা', 'হিন্দুধর্ম শিক্ষা']
+  },
+  {
+    id: 6,
+    name: 'শ্রেণী ৬',
+    description: 'শ্রেণী ৬র শিক্ষার্থীদের জন্য বিশেষ পাঠ্যক্রম, যা তাদের মেধা ও নৈতিক বিকাশে সহায়ক।',
+    subjects: ['বাংলা ১ম পত্র', 'বাংলা ২য় পত্র', 'English 1st Paper', 'English 2nd Paper', 'গণিত', 'বিজ্ঞান', 'বাংলাদেশ ও বিশ্বপরিচয়', 'তথ্য ও যোগাযোগ প্রযুক্তি', 'ইসলাম শিক্ষা', 'হিন্দুধর্ম শিক্ষা']
+  },
+  {
+    id: 7,
+    name: 'ক্যাডেট',
+    description: 'ক্যাডেট শিক্ষার্থীদের জন্য বিশেষ পাঠ্যক্রম, যা তাদের মেধা ও নৈতিক বিকাশে সহায়ক।',
+    subjects: ['বাংলা ১ম পত্র', 'বাংলা ২য় পত্র', 'English 1st Paper', 'English 2nd Paper', 'গণিত', 'বিজ্ঞান', 'সাধারণ জ্ঞান', 'সমসাময়িক বিষয় নিয়ে আলোচনা', 'বাংলাদেশ ও বিশ্বপরিচয়']
+  },
+  {
+    id: 8,
+    name: 'শ্রেণী ৭',
+    description: 'শ্রেণী ৭র শিক্ষার্থীদের জন্য বিশেষ পাঠ্যক্রম, যা তাদের মেধা ও নৈতিক বিকাশে সহায়ক।',
+    subjects: ['বাংলা ১ম পত্র', 'বাংলা ২য় পত্র', 'English 1st Paper', 'English 2nd Paper', 'গণিত', 'বিজ্ঞান', 'বাংলাদেশ ও বিশ্বপরিচয়', 'তথ্য ও যোগাযোগ প্রযুক্তি', 'ইসলাম শিক্ষা', 'হিন্দুধর্ম শিক্ষা']
+  },
+  {
+    id: 9,
+    name: 'শ্রেণী ৮',
+    description: 'শ্রেণী ৮র শিক্ষার্থীদের জন্য বিশেষ পাঠ্যক্রম, যা তাদের মেধা ও নৈতিক বিকাশে সহায়ক।',
+    subjects: ['বাংলা ১ম পত্র', 'বাংলা ২য় পত্র', 'English 1st Paper', 'English 2nd Paper', 'গণিত', 'বিজ্ঞান', 'বাংলাদেশ ও বিশ্বপরিচয়', 'তথ্য ও যোগাযোগ প্রযুক্তি', 'ইসলাম শিক্ষা', 'হিন্দুধর্ম শিক্ষা']
+  },
+  {
+    id: 10,
+    name: 'শ্রেণী ৯',
+    description: 'শ্রেণী ৯র শিক্ষার্থীদের জন্য বিশেষ পাঠ্যক্রম, যা তাদের মেধা ও নৈতিক বিকাশে সহায়ক।',
+    subjects: {
+      'আবশ্যিক বিষয়': ['বাংলা ১ম পত্র', 'বাংলা ২য় পত্র', 'English 1st Paper', 'English 2nd Paper', 'সাধারণ গণিত', 'তথ্য ও যোগাযোগ প্রযুক্তি', 'ইসলাম শিক্ষা', 'হিন্দুধর্ম শিক্ষা'],
+      'মানবিক বিভাগ': ['বাংলাদেশের ইতিহাস ও বিশ্বসভ্যতা', 'ভূগোল ও পরিবেশ', 'পৌরনীতি ও নাগরিকতা', 'অর্থনীতি', 'কৃষিশিক্ষা', 'গার্হস্থ্যবিজ্ঞান'],
+      'বিজ্ঞান বিভাগ': ['জীববিজ্ঞান', 'পদার্থ বিজ্ঞান', 'উচ্চতর গণিত', 'রসায়ন']
+    }
+  },
+  {
+    id: 11,
+    name: 'শ্রেণী ১০',
+    description: 'শ্রেণী ১০র শিক্ষার্থীদের জন্য বিশেষ পাঠ্যক্রম, যা তাদের মেধা ও নৈতিক বিকাশে সহায়ক।',
+    subjects: {
+      'আবশ্যিক বিষয়': ['বাংলা ১ম পত্র', 'বাংলা ২য় পত্র', 'English 1st Paper', 'English 2nd Paper', 'সাধারণ গণিত', 'তথ্য ও যোগাযোগ প্রযুক্তি', 'ইসলাম শিক্ষা', 'হিন্দুধর্ম শিক্ষা'],
+      'মানবিক বিভাগ': ['বাংলাদেশের ইতিহাস ও বিশ্বসভ্যতা', 'ভূগোল ও পরিবেশ', 'পৌরনীতি ও নাগরিকতা', 'অর্থনীতি', 'কৃষিশিক্ষা', 'গার্হস্থ্যবিজ্ঞান'],
+      'বিজ্ঞান বিভাগ': ['জীববিজ্ঞান', 'পদার্থ বিজ্ঞান', 'উচ্চতর গণিত', 'রসায়ন']
+    }
+  }
+];
 
 const COURSES = [
   { title: 'Admission পরীক্ষার প্রস্তুতি', icon: '📝', description: 'সাতক্ষীরা সরকারি উচ্চ বিদ্যালয় ও সাতক্ষীরা সরকারি উচ্চ বালিকা বিদ্যালয়ের ৩য় শ্রেণীর ভর্তি পরীক্ষায় উত্তীর্ণ হওয়ার জন্য আপনার সন্তানকে প্রস্তুত করার লক্ষ্যে এই কোর্সটি পরিচালিত হয়।' },
@@ -159,7 +237,7 @@ const COURSES = [
 
 const ADMINS = [
   { name: 'এ.টি.এম আবু হাসান', role: 'পরিচালক, স্টার কিডস্', image: 'https://i.imgur.com/IiExcyk.jpeg' },
-  { name: 'কাজী সাদিকুজ্জামান', role: 'সহকারী পরিচালক, স্টার কিডস্', image: 'https://i.imgur.com/HaCtMx5.jpeg' },
+  { name: 'কাজী সাদিকুজ্জামান', role: 'যুগ্ম পরিচালক, স্টার কিডস্', image: 'https://i.imgur.com/HaCtMx5.jpeg' },
 ];
 
 const EXPERIENCED_TEACHERS = [
@@ -168,12 +246,6 @@ const EXPERIENCED_TEACHERS = [
     subject: 'গণিত',
     mobile: '01711240615',
     image: 'https://i.imgur.com/VQ0N7Su.jpeg'
-  },
-  {
-    name: 'শরিফ স্যার',
-    subject: 'গণিত',
-    mobile: '01712994462',
-    image: 'https://i.imgur.com/JnVQU7z.jpeg'
   },
   {
     name: 'মেহেদী স্যার',
@@ -218,8 +290,8 @@ const CLASS_TEACHERS: Teacher[] = [
   { id: 1, name: 'বজলু স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[0], image: TEACHER_IMAGES[0] },
   { id: 2, name: 'সাদ্দাম স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[1], image: TEACHER_IMAGES[1] },
   { id: 3, name: 'আবির স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[2], image: TEACHER_IMAGES[2] },
-  { id: 4, name: 'শাহ-আলম স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[3], image: TEACHER_IMAGES[3] },
-  { id: 5, name: 'মনি স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[4], image: TEACHER_IMAGES[4] },
+  { id: 4, name: 'শাহ-আলম স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[3], image: 'https://i.imgur.com/cThNKjS.jpeg' },
+  { id: 5, name: 'মনি স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[4], image: 'https://i.imgur.com/SVILI2V.jpeg' },
   { id: 6, name: 'রায়হান স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[5], image: TEACHER_IMAGES[5] },
   { id: 99, name: 'শরীফুল স্যার', role: 'ক্যাডেট মেন্টর', class: 'ক্যাডেট', image: 'https://i.imgur.com/R9GM5UV.jpeg' },
   { id: 7, name: 'শরিফ স্যার (বাণিজ্য)', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[6], image: TEACHER_IMAGES[6] },
@@ -433,6 +505,7 @@ const ImageLightbox = ({
 }) => {
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -488,11 +561,11 @@ const ImageLightbox = ({
           </div>
 
           {/* Image Container */}
-          <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden pointer-events-auto">
+          <div ref={containerRef} className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden pointer-events-auto">
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="relative w-full h-full flex items-center justify-center overflow-hidden"
+              className="relative w-full h-full flex items-center justify-center"
             >
               <motion.img
                 src={src}
@@ -504,8 +577,8 @@ const ImageLightbox = ({
                 className="max-w-full max-h-full object-contain transition-transform duration-200 cursor-grab active:cursor-grabbing"
                 referrerPolicy="no-referrer"
                 drag
-                dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-                dragElastic={0.5}
+                dragConstraints={containerRef}
+                dragElastic={0.1}
               />
             </motion.div>
             
@@ -1005,7 +1078,7 @@ const About = ({ onImageClick }: { onImageClick: (src: string, caption?: string)
 };
 
 const ClassesSection = () => {
-  const [selectedClass, setSelectedClass] = useState<typeof CLASSES[0] | null>(null);
+  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
 
   return (
     <section id="classes" className="pt-4 pb-24 bg-blue-50">
@@ -1054,27 +1127,64 @@ const ClassesSection = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden"
+              className="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden"
             >
-              <div className="bg-yellow-400 p-8 text-blue-900">
+              <div className="bg-yellow-400 p-6 md:p-8 text-blue-900 shrink-0">
                 <div className="flex justify-between items-start">
-                  <h4 className="text-3xl font-black">{selectedClass.name}</h4>
-                  <button onClick={() => setSelectedClass(null)} className="hover:bg-blue-900/10 p-1 rounded-lg">
+                  <h4 className="text-2xl md:text-3xl font-black">{selectedClass.name}</h4>
+                  <button onClick={() => setSelectedClass(null)} className="hover:bg-blue-900/10 p-1 rounded-lg transition-colors">
                     <X size={24} />
                   </button>
                 </div>
               </div>
-              <div className="p-8">
-                <p className="text-gray-600 mb-6 leading-relaxed">{selectedClass.description}</p>
-                <h5 className="font-black text-blue-900 mb-4 uppercase text-sm tracking-widest">Core Subjects</h5>
-                <div className="flex flex-wrap gap-2 mb-8">
-                  {selectedClass.subjects.map(s => (
-                    <span key={s} className="bg-blue-50 text-blue-900 px-4 py-2 rounded-full text-sm font-bold">
-                      {s}
-                    </span>
-                  ))}
+              <div className="p-6 md:p-8 overflow-y-auto">
+                <p className="text-gray-600 mb-6 leading-relaxed text-sm md:text-base">{selectedClass.description}</p>
+                
+                <h5 className="font-black text-blue-900 mb-4 uppercase text-xs md:text-sm tracking-widest">যে যে বিষয় পড়ানো হয়</h5>
+                <div className="space-y-6 mb-8">
+                  {Array.isArray(selectedClass.subjects) ? (
+                    <div className="flex flex-wrap gap-2">
+                      {selectedClass.subjects.map(s => (
+                        <span key={s} className="bg-blue-50 text-blue-900 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-bold">
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    Object.entries(selectedClass.subjects).map(([category, subjects]) => (
+                      <div key={category}>
+                        <h6 className="text-blue-900/60 text-[10px] font-black mb-2 uppercase tracking-wider">{category}</h6>
+                        <div className="flex flex-wrap gap-2">
+                          {subjects.map(s => (
+                            <span key={s} className="bg-blue-50 text-blue-900 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-bold">
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
-                <button className="w-full bg-blue-900 text-white py-4 rounded-xl font-bold hover:bg-blue-800 transition-colors">
+
+                <h5 className="font-black text-blue-900 mb-4 uppercase text-xs md:text-sm tracking-widest">শ্রেণীর বেতন ও ভর্তি/ নোট ফি তালিকা</h5>
+                <div className="bg-blue-50 p-4 md:p-6 rounded-2xl mb-8">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-blue-900/60 font-bold text-xs md:text-sm">প্রতি মাসের বেতন:</span>
+                      <span className="text-blue-900 font-black text-base md:text-lg">{FEES_DATA[selectedClass.id - 1]?.monthly}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-blue-900/60 font-bold text-xs md:text-sm">ভর্তি/নোট ফি:</span>
+                      <span className="text-blue-900 font-black text-base md:text-lg">{FEES_DATA[selectedClass.id - 1]?.admission}</span>
+                    </div>
+                    <div className="pt-3 border-t border-blue-200 flex justify-between items-center">
+                      <span className="text-blue-900 font-black text-sm md:text-base">সর্বমোট:</span>
+                      <span className="text-blue-900 font-black text-lg md:text-xl text-blue-600">{FEES_DATA[selectedClass.id - 1]?.total}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button className="w-full bg-blue-900 text-white py-3 md:py-4 rounded-xl font-bold hover:bg-blue-800 transition-colors text-sm md:text-base">
                   Download Syllabus
                 </button>
               </div>
@@ -1082,6 +1192,65 @@ const ClassesSection = () => {
           </div>
         )}
       </AnimatePresence>
+    </section>
+  );
+};
+
+const FacebookSection = () => {
+  return (
+    <section className="py-24 bg-white overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-blue-600 text-sm md:text-base font-black uppercase tracking-widest mb-2">আপডেট</h2>
+          <h3 className="text-3xl md:text-5xl font-black text-blue-900">আমাদের সাম্প্রতিক কার্যক্রম</h3>
+          <div className="w-20 h-1.5 bg-yellow-400 mx-auto rounded-full mt-4"></div>
+          <p className="text-gray-500 mt-6 max-w-2xl mx-auto font-medium">
+            আমাদের ফেসবুক পেজের মাধ্যমে প্রতিষ্ঠানের প্রতিদিনের আপডেট এবং কার্যক্রম সম্পর্কে জানুন।
+          </p>
+        </div>
+
+        <div className="relative max-w-[500px] mx-auto">
+          {/* Decorative Frame Elements */}
+          <div className="absolute -inset-4 bg-blue-600/5 rounded-[2.5rem] -z-10 blur-2xl"></div>
+          <div className="absolute -top-6 -right-6 w-24 h-24 bg-yellow-400/20 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-blue-600/10 rounded-full blur-3xl"></div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-white p-1 md:p-4 rounded-[2rem] shadow-[0_32px_64px_-16px_rgba(30,58,138,0.15)] border border-blue-50 relative overflow-hidden"
+          >
+            <div className="w-full overflow-hidden rounded-xl bg-slate-50">
+              <iframe 
+                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fstarkidssatkhira&tabs=timeline&width=500&height=800&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
+                width="100%" 
+                height="800" 
+                style={{ border: 'none', overflow: 'hidden', minHeight: '600px' }} 
+                scrolling="no" 
+                frameBorder="0" 
+                allowFullScreen={true} 
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                title="Star Kids Facebook Page"
+              ></iframe>
+            </div>
+            
+            <div className="mt-4 md:mt-6 pb-4 text-center">
+              <a 
+                href="https://www.facebook.com/starkidssatkhira" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-blue-600 font-black hover:text-blue-800 transition-colors"
+              >
+                <span>ফেসবুক পেজে ভিজিট করুন</span>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </a>
+            </div>
+          </motion.div>
+        </div>
+      </div>
     </section>
   );
 };
@@ -1322,7 +1491,7 @@ const ExperiencedTeachers = ({ onImageClick }: { onImageClick: (src: string, cap
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 whileHover={{ y: -10 }}
-                className="bg-white p-3 md:p-6 rounded-[2.5rem] md:rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.08)] flex flex-col items-center text-center border border-blue-50 hover:border-yellow-500 transition-all duration-300 cursor-pointer group"
+                className={`bg-white p-3 md:p-6 rounded-[2.5rem] md:rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.08)] flex flex-col items-center text-center border border-blue-50 hover:border-yellow-500 transition-all duration-300 cursor-pointer group ${index === 4 ? 'col-start-1 col-end-3 translate-x-0 md:col-start-auto md:col-end-auto mx-auto w-full max-w-[calc(50%-0.5rem)] md:max-w-none' : ''}`}
                 onClick={() => onImageClick(teacher.image, teacher.name)}
               >
                 {/* Purple Image Container */}
@@ -1631,6 +1800,7 @@ const IT_TEAM = [
 
 const ITDepartment = () => {
   const [selectedMember, setSelectedMember] = useState<typeof IT_TEAM[0] | null>(null);
+  const [showDesigner, setShowDesigner] = useState(false);
 
   return (
     <section className="pt-4 pb-24 bg-slate-50 relative overflow-hidden border-y border-slate-200/60">
@@ -1657,7 +1827,7 @@ const ITDepartment = () => {
             transition={{ delay: 0.1 }}
             className="text-4xl md:text-5xl font-black text-blue-900"
           >
-            IT বিভাগ
+            IT ও কম্পিউটার সেকশন
           </motion.h3>
           <motion.div 
             initial={{ width: 0 }}
@@ -1665,6 +1835,42 @@ const ITDepartment = () => {
             viewport={{ once: true }}
             className="h-1.5 bg-yellow-400 mx-auto rounded-full mt-4"
           ></motion.div>
+        </div>
+
+        {/* Mallick Abid Hasan - Main IT Box */}
+        <div className="max-w-md mx-auto mb-12">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setShowDesigner(true)}
+            className="w-full bg-gradient-to-br from-blue-900 to-blue-800 p-8 rounded-[2.5rem] shadow-2xl text-center group relative overflow-hidden"
+          >
+            {/* Decorative background elements */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-yellow-400/20 transition-all"></div>
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-400/10 rounded-full -ml-16 -mb-16 blur-2xl group-hover:bg-blue-400/20 transition-all"></div>
+            
+            <div className="relative z-10">
+              <h4 className="text-white text-2xl font-black mb-1">মল্লিক আবিদ হাসান</h4>
+              <p className="text-blue-200 text-xs font-bold">IT Specialist, Web Designer & Teacher</p>
+            </div>
+
+            {/* Animated Click Icon */}
+            <motion.div
+              animate={{
+                x: [10, -5, 10],
+                y: [10, -5, 10],
+                scale: [1, 0.8, 1],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="absolute bottom-4 right-4 text-yellow-400 opacity-80 pointer-events-none"
+            >
+              <MousePointer2 size={32} fill="currentColor" />
+            </motion.div>
+          </motion.button>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8 max-w-5xl mx-auto">
@@ -1760,6 +1966,70 @@ const ITDepartment = () => {
                 <button 
                   onClick={() => setSelectedMember(null)}
                   className="w-full mt-6 bg-blue-900 text-white py-4 rounded-2xl font-black hover:bg-blue-800 transition-colors"
+                >
+                  বন্ধ করুন
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Designer Popup Modal */}
+      <AnimatePresence>
+        {showDesigner && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-blue-950/80 backdrop-blur-sm"
+              onClick={() => setShowDesigner(false)}
+            />
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 20 }}
+              className="relative bg-white rounded-[2.5rem] overflow-hidden max-w-2xl w-full shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button 
+                onClick={() => setShowDesigner(false)}
+                className="absolute top-4 right-4 z-10 bg-black/20 hover:bg-black/40 text-white p-2 rounded-full transition-colors"
+              >
+                <X size={24} />
+              </button>
+
+              <div className="p-10">
+                <div className="flex flex-col md:flex-row items-center gap-8 bg-blue-50 p-8 rounded-[2rem]">
+                  <div className="relative w-32 h-32 shrink-0">
+                    <img 
+                      src="https://i.imgur.com/lwGOaKs.jpeg" 
+                      alt="Mallick Abid Hasan" 
+                      className="w-full h-full object-cover rounded-[2rem] border-4 border-white shadow-lg"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <div className="text-center md:text-left">
+                    <div className="text-2xl font-black text-blue-900 mb-1">Mallick Abid Hasan</div>
+                    <div className="text-sm font-bold text-blue-900 uppercase tracking-widest opacity-80 mb-4">
+                      Website Designer<br/>& Star Kids Teacher<br/>
+                      <span className="normal-case font-black text-xs mt-1 block">(General Science & Math)</span>
+                    </div>
+                    
+                    <div className="flex justify-center md:justify-start gap-3">
+                      <a href="https://youtube.com/@analysisbyabidhasan" target="_blank" rel="noopener noreferrer" className="p-2 bg-blue-900 text-white rounded-lg hover:bg-yellow-400 hover:text-blue-900 transition-all"><Youtube size={18} /></a>
+                      <a href="https://www.facebook.com/MallickAbidHasan360" target="_blank" rel="noopener noreferrer" className="p-2 bg-blue-900 text-white rounded-lg hover:bg-yellow-400 hover:text-blue-900 transition-all"><Facebook size={18} /></a>
+                      <a href="https://www.tiktok.com/@thehistoricalanalysis" target="_blank" rel="noopener noreferrer" className="p-2 bg-blue-900 text-white rounded-lg hover:bg-yellow-400 hover:text-blue-900 transition-all"><Music2 size={18} /></a>
+                      <a href="https://t.me/Granthagara" target="_blank" rel="noopener noreferrer" className="p-2 bg-blue-900 text-white rounded-lg hover:bg-yellow-400 hover:text-blue-900 transition-all"><Send size={18} /></a>
+                      <a href="https://wa.me/+8801854009603" target="_blank" rel="noopener noreferrer" className="p-2 bg-blue-900 text-white rounded-lg hover:bg-yellow-400 hover:text-blue-900 transition-all"><Phone size={18} /></a>
+                    </div>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => setShowDesigner(false)}
+                  className="w-full mt-8 bg-blue-900 text-white py-4 rounded-2xl font-black hover:bg-blue-800 transition-colors"
                 >
                   বন্ধ করুন
                 </button>
@@ -2788,6 +3058,7 @@ const FeeSection = () => {
       </div>
       
       <FeeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <StarAIChat />
     </section>
   );
 };
@@ -2877,6 +3148,7 @@ export default function App() {
         <NoticeBoard />
         <About onImageClick={openLightbox} />
         <ClassesSection />
+        <FacebookSection />
         <CoursesSection />
         <Administration onImageClick={openLightbox} />
         <ChiefCoordinatorSection onImageClick={openLightbox} />
