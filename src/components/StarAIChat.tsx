@@ -10,7 +10,10 @@ import {
   User, 
   Bot,
   Volume2,
-  VolumeX
+  VolumeX,
+  Image as ImageIcon,
+  Trash2,
+  Sparkles
 } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from 'react-markdown';
@@ -52,11 +55,13 @@ const SYSTEM_INSTRUCTION = `
 interface Message {
   role: 'user' | 'model';
   text: string;
+  image?: string;
 }
 
 const StarAIChat: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     { role: 'model', text: 'হ্যালো! আমি Star-AI। আমি তোমাকে কীভাবে সাহায্য করতে পারি?' }
   ]);
@@ -64,6 +69,7 @@ const StarAIChat: React.FC = () => {
   const [isListening, setIsListening] = useState(false);
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Speech Recognition Setup
   const [recognition, setRecognition] = useState<any>(null);
@@ -111,30 +117,74 @@ const StarAIChat: React.FC = () => {
     }
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearChat = () => {
+    setMessages([{ role: 'model', text: 'হ্যালো! আমি Star-AI। আমি তোমাকে কীভাবে সাহায্য করতে পারি?' }]);
+    setSelectedImage(null);
+  };
+
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+    if ((!input.trim() && !selectedImage) || isLoading) return;
 
     const userMessage = input.trim();
+    const userImage = selectedImage;
+    
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
+    setSelectedImage(null);
+    setMessages(prev => [...prev, { role: 'user', text: userMessage, image: userImage || undefined }]);
     setIsLoading(true);
 
     try {
       const ai = getAIInstance();
       
-      const response = await ai.models.generateContent({
+      const history = messages.map(m => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.text }] as any[]
+      }));
+
+      const contents = history.concat([{
+        role: 'user',
+        parts: userImage 
+          ? [
+              { text: userMessage || "এই ছবিটি সম্পর্কে বলো।" },
+              { inlineData: { data: userImage.split(',')[1], mimeType: userImage.split(';')[0].split(':')[1] } }
+            ]
+          : [{ text: userMessage }]
+      }]);
+
+      const responseStream = await ai.models.generateContentStream({
         model: "gemini-3-flash-preview",
-        contents: userMessage,
+        contents: contents,
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
         }
       });
 
-      const aiText = response.text || 'দুঃখিত, আমি বুঝতে পারছি না। আবার চেষ্টা করো।';
-      setMessages(prev => [...prev, { role: 'model', text: aiText }]);
+      let fullText = '';
+      setMessages(prev => [...prev, { role: 'model', text: '' }]);
+
+      for await (const chunk of responseStream) {
+        const chunkText = chunk.text || '';
+        fullText += chunkText;
+        setMessages(prev => {
+          const newMessages = [...prev];
+          newMessages[newMessages.length - 1].text = fullText;
+          return newMessages;
+        });
+      }
 
       if (isSpeechEnabled && typeof window !== 'undefined') {
-        const utterance = new SpeechSynthesisUtterance(aiText);
+        const utterance = new SpeechSynthesisUtterance(fullText);
         utterance.lang = 'bn-BD';
         window.speechSynthesis.speak(utterance);
       }
@@ -155,10 +205,10 @@ const StarAIChat: React.FC = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 bg-blue-600/60 backdrop-blur-md text-white px-3.5 py-2 rounded-full shadow-xl flex items-center gap-2 group border border-white/40"
+        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-2 group border border-white/20"
       >
-        <MessageCircle size={18} className="group-hover:rotate-12 transition-transform" />
-        <span className="font-black text-xs pr-1">Ask Star-AI</span>
+        <Sparkles size={20} className="group-hover:animate-pulse" />
+        <span className="font-black text-sm">Ask Star-AI</span>
       </motion.button>
 
       {/* Chat Window */}
@@ -171,17 +221,26 @@ const StarAIChat: React.FC = () => {
             className="fixed bottom-24 right-6 z-50 w-[90vw] sm:w-[400px] h-[500px] bg-white rounded-[2rem] shadow-2xl border-4 border-blue-600 overflow-hidden flex flex-col"
           >
             {/* Header */}
-            <div className="bg-blue-600 p-4 text-white flex items-center justify-between">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 text-white flex items-center justify-between shadow-lg">
               <div className="flex items-center gap-3">
-                <div className="bg-white p-2 rounded-full text-blue-600">
-                  <Bot size={20} />
+                <div className="bg-white/20 p-2 rounded-xl backdrop-blur-md">
+                  <Sparkles size={20} className="text-white" />
                 </div>
                 <div>
-                  <h3 className="font-black text-lg">Star-AI</h3>
-                  <p className="text-xs text-blue-100">সহায়ক শিক্ষক</p>
+                  <h3 className="font-black text-lg flex items-center gap-2">
+                    Star-AI
+                  </h3>
+                  <p className="text-[10px] text-blue-100 uppercase tracking-wider font-bold">Powered by Gemini</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <button 
+                  onClick={clearChat}
+                  className="p-2 hover:bg-blue-700 rounded-full transition-colors"
+                  title="Clear Chat"
+                >
+                  <Trash2 size={20} />
+                </button>
                 <button 
                   onClick={() => setIsSpeechEnabled(!isSpeechEnabled)}
                   className="p-2 hover:bg-blue-700 rounded-full transition-colors"
@@ -220,6 +279,14 @@ const StarAIChat: React.FC = () => {
                         ? 'bg-blue-600 text-white rounded-tr-none' 
                         : 'bg-white text-slate-800 shadow-sm border border-slate-200 rounded-tl-none'
                     }`}>
+                      {msg.image && (
+                        <img 
+                          src={msg.image} 
+                          alt="User upload" 
+                          className="max-w-full h-auto rounded-lg mb-2 border border-blue-400"
+                          referrerPolicy="no-referrer"
+                        />
+                      )}
                       <div className="markdown-body prose prose-sm max-w-none">
                         <ReactMarkdown>
                           {msg.text}
@@ -239,9 +306,45 @@ const StarAIChat: React.FC = () => {
               )}
             </div>
 
+            {/* Image Preview */}
+            <AnimatePresence>
+              {selectedImage && (
+                <motion.div 
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="px-4 py-2 bg-slate-100 border-t border-slate-200 relative"
+                >
+                  <div className="relative inline-block">
+                    <img src={selectedImage} alt="Preview" className="h-20 w-20 object-cover rounded-lg border-2 border-blue-600" referrerPolicy="no-referrer" />
+                    <button 
+                      onClick={() => setSelectedImage(null)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Input */}
             <div className="p-4 bg-white border-t border-slate-100">
               <div className="flex items-center gap-2 bg-slate-100 p-2 rounded-2xl">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  className="hidden" 
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                />
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="p-2 hover:bg-slate-200 text-slate-500 rounded-xl transition-colors"
+                  title="Upload Image"
+                >
+                  <ImageIcon size={20} />
+                </button>
                 <button 
                   onClick={toggleListening}
                   className={`p-2 rounded-xl transition-colors ${

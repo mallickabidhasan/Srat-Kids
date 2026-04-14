@@ -54,9 +54,17 @@ service cloud.firestore {
     }
 
     function isValidAdmission(data) {
-      return data.keys().hasAll(['studentName', 'mobile', 'submittedAt']) &&
-             data.studentName is string && data.studentName.size() > 0 &&
-             data.mobile is string && data.mobile.size() > 0 &&
+      return data.keys().hasAll(['studentName', 'fatherName', 'motherName', 'schoolName', 'className', 'mobile', 'religion', 'shift', 'studentEmail', 'submittedAt']) &&
+             data.keys().hasOnly(['studentName', 'fatherName', 'motherName', 'schoolName', 'className', 'mobile', 'religion', 'shift', 'studentEmail', 'submittedAt']) &&
+             data.studentName is string && data.studentName.size() > 0 && data.studentName.size() < 100 &&
+             data.fatherName is string && data.fatherName.size() > 0 && data.fatherName.size() < 100 &&
+             data.motherName is string && data.motherName.size() > 0 && data.motherName.size() < 100 &&
+             data.schoolName is string && data.schoolName.size() > 0 && data.schoolName.size() < 200 &&
+             data.className is string && data.className.size() > 0 && data.className.size() < 50 &&
+             data.mobile is string && data.mobile.size() > 0 && data.mobile.size() < 20 &&
+             data.religion is string && data.religion.size() > 0 && data.religion.size() < 50 &&
+             data.shift is string && data.shift in ['সকাল', 'বিকাল'] &&
+             isValidEmail(data.studentEmail) &&
              data.submittedAt is timestamp;
     }
 
