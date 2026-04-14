@@ -92,6 +92,7 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
 
 async function testConnection() {
   try {
+    if (!db) return;
     await getDocFromServer(doc(db, 'test', 'connection'));
   } catch (error) {
     if(error instanceof Error && error.message.includes('the client is offline')) {
@@ -99,7 +100,7 @@ async function testConnection() {
     }
   }
 }
-testConnection();
+// testConnection() call removed from top level
 
 // --- Types ---
 interface Class {
@@ -3115,6 +3116,7 @@ export default function App() {
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 800);
+    testConnection();
     return () => clearTimeout(timer);
   }, []);
 

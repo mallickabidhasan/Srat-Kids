@@ -15,8 +15,19 @@ import {
 import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from 'react-markdown';
 
-// Initialize Gemini
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Initialize Gemini lazily
+let aiInstance: GoogleGenAI | null = null;
+
+const getAIInstance = () => {
+  if (!aiInstance) {
+    const apiKey = typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : undefined;
+    if (!apiKey) {
+      throw new Error('GEMINI_API_KEY is missing. Please set it in your environment variables.');
+    }
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+};
 
 const SYSTEM_INSTRUCTION = `
 তুমি স্টার কিডস (Star Kids) প্রতিষ্ঠানের একজন সহায়ক শিক্ষক। তোমার নাম 'Star-AI'। 
@@ -109,19 +120,14 @@ const StarAIChat: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const chat = ai.chats.create({
+      const ai = getAIInstance();
+      
+      const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
+        contents: userMessage,
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
-        },
-        history: messages.map(m => ({
-          role: m.role,
-          parts: [{ text: m.text }]
-        }))
-      });
-
-      const response = await chat.sendMessage({
-        message: userMessage
+        }
       });
 
       const aiText = response.text || 'দুঃখিত, আমি বুঝতে পারছি না। আবার চেষ্টা করো।';
