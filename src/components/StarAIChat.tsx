@@ -15,11 +15,11 @@ import {
   Trash2,
   Sparkles
 } from 'lucide-react';
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import ReactMarkdown from 'react-markdown';
 
 // Initialize Gemini lazily
-let aiInstance: GoogleGenAI | null = null;
+let aiInstance: GoogleGenerativeAI | null = null;
 
 const getAIInstance = () => {
   if (!aiInstance) {
@@ -27,7 +27,7 @@ const getAIInstance = () => {
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY is missing. Please set it in your environment variables.');
     }
-    aiInstance = new GoogleGenAI({ apiKey });
+    aiInstance = new GoogleGenerativeAI(apiKey);
   }
   return aiInstance;
 };
@@ -70,6 +70,12 @@ const StarAIChat: React.FC = () => {
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, isLoading]);
 
   // Speech Recognition Setup
   const [recognition, setRecognition] = useState<any>(null);
@@ -145,9 +151,13 @@ const StarAIChat: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const ai = getAIInstance();
+      const genAI = getAIInstance();
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: SYSTEM_INSTRUCTION,
+      });
       
-      const history = messages.map(m => ({
+      const history = messages.slice(1).map(m => ({
         role: m.role === 'user' ? 'user' : 'model',
         parts: [{ text: m.text }] as any[]
       }));
@@ -162,19 +172,15 @@ const StarAIChat: React.FC = () => {
           : [{ text: userMessage }]
       }]);
 
-      const responseStream = await ai.models.generateContentStream({
-        model: "gemini-3-flash-preview",
-        contents: contents,
-        config: {
-          systemInstruction: SYSTEM_INSTRUCTION,
-        }
+      const result = await model.generateContentStream({
+        contents: contents
       });
 
       let fullText = '';
       setMessages(prev => [...prev, { role: 'model', text: '' }]);
 
-      for await (const chunk of responseStream) {
-        const chunkText = chunk.text || '';
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
         fullText += chunkText;
         setMessages(prev => {
           const newMessages = [...prev];
@@ -188,9 +194,17 @@ const StarAIChat: React.FC = () => {
         utterance.lang = 'bn-BD';
         window.speechSynthesis.speak(utterance);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Gemini Error:', error);
-      setMessages(prev => [...prev, { role: 'model', text: 'দুঃখিত, আমার সার্ভারে একটু সমস্যা হচ্ছে। দয়া করে একটু পরে আবার চেষ্টা করো।' }]);
+      let errorMessage = 'দুঃখিত, আমার সার্ভারে একটু সমস্যা হচ্ছে। দয়া করে একটু পরে আবার চেষ্টা করো।';
+      
+      if (error?.message?.includes('API_KEY')) {
+        errorMessage = 'দুঃখিত, Gemini API Key কনফিগার করা নেই। দয়া করে অ্যাডমিনের সাথে যোগাযোগ করো।';
+      } else if (error?.message?.includes('safety')) {
+        errorMessage = 'দুঃখিত, তোমার প্রশ্নটি আমাদের সেফটি গাইডলাইনের বাইরে। অন্যভাবে জিজ্ঞাসা করো।';
+      }
+
+      setMessages(prev => [...prev, { role: 'model', text: errorMessage }]);
     } finally {
       setIsLoading(false);
     }
@@ -236,20 +250,20 @@ const StarAIChat: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button 
                   onClick={clearChat}
-                  className="p-2 hover:bg-blue-700 rounded-full transition-colors"
+                  className="p-2 hover:bg-white/10 rounded-xl transition-colors"
                   title="Clear Chat"
                 >
                   <Trash2 size={20} />
                 </button>
                 <button 
                   onClick={() => setIsSpeechEnabled(!isSpeechEnabled)}
-                  className="p-2 hover:bg-blue-700 rounded-full transition-colors"
+                  className="p-2 hover:bg-white/10 rounded-xl transition-colors"
                 >
                   {isSpeechEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
                 </button>
                 <button 
                   onClick={() => setIsOpen(false)}
-                  className="p-2 hover:bg-blue-700 rounded-full transition-colors"
+                  className="p-2 hover:bg-white/10 rounded-xl transition-colors"
                 >
                   <X size={20} />
                 </button>
@@ -363,10 +377,14 @@ const StarAIChat: React.FC = () => {
                 />
                 <button 
                   onClick={handleSend}
-                  disabled={!input.trim() || isLoading}
-                  className="p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors"
+                  disabled={isLoading || (!input.trim() && !selectedImage)}
+                  className={`p-2.5 rounded-xl transition-all ${
+                    isLoading || (!input.trim() && !selectedImage)
+                      ? 'bg-slate-200 text-slate-400'
+                      : 'bg-blue-600 text-white shadow-lg shadow-blue-100 hover:scale-105 active:scale-95'
+                  }`}
                 >
-                  <Send size={20} />
+                  <Send size={18} className={isLoading ? 'animate-pulse' : ''} />
                 </button>
               </div>
               <p className="text-[10px] text-center text-slate-400 mt-2">

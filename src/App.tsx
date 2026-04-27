@@ -130,7 +130,7 @@ interface BlogPost {
 // --- Data ---
 const BENGALI_CLASSES = [
   'শ্রেণী ১', 'শ্রেণী ২', 'শ্রেণী ৩', 'শ্রেণী ৪', 'শ্রেণী ৫',
-  'শ্রেণী ৬', 'ক্যাডেট', 'শ্রেণী ৭', 'শ্রেণী ৮', 'শ্রেণী ৯', 'শ্রেণী ১০'
+  'শ্রেণী ৬', 'ক্যাডেট', 'শ্রেণী ৭ম', 'শ্রেণী ৮ম', 'শ্রেণী ৯ম', 'শ্রেণী ১০ম'
 ];
 
 const CLASSES: Class[] = [
@@ -295,10 +295,10 @@ const CLASS_TEACHERS: Teacher[] = [
   { id: 5, name: 'মনি স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[4], image: 'https://i.imgur.com/SVILI2V.jpeg' },
   { id: 6, name: 'রায়হান স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[5], image: TEACHER_IMAGES[5] },
   { id: 99, name: 'শরীফুল স্যার', role: 'ক্যাডেট মেন্টর', class: 'ক্যাডেট', image: 'https://i.imgur.com/R9GM5UV.jpeg' },
-  { id: 7, name: 'শরিফ স্যার (বাণিজ্য)', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[6], image: TEACHER_IMAGES[6] },
-  { id: 8, name: 'ময়না স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[7], image: TEACHER_IMAGES[7] },
-  { id: 9, name: 'এনামুল স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[8], image: TEACHER_IMAGES[8] },
-  { id: 10, name: 'আলিফ স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[9], image: TEACHER_IMAGES[9] },
+  { id: 7, name: 'শরিফ স্যার (বাণিজ্য)', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[7], image: TEACHER_IMAGES[6] },
+  { id: 8, name: 'ময়না স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[8], image: TEACHER_IMAGES[7] },
+  { id: 9, name: 'এনামুল স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[9], image: TEACHER_IMAGES[8] },
+  { id: 10, name: 'আলিফ স্যার', role: 'শ্রেণী শিক্ষক', class: BENGALI_CLASSES[10], image: TEACHER_IMAGES[9] },
 ];
 
 const TEACHER_NAMES = [
@@ -1777,7 +1777,7 @@ const IT_TEAM = [
     color: 'bg-blue-600'
   },
   {
-    name: 'সুলাইমান স্যার',
+    name: 'সোলায়মান স্যার',
     role: 'কম্পিউটার এবং সোশ্যাল মিডিয়া অপারেটর',
     mobile: '01756536803',
     image: 'https://i.imgur.com/iCR7vAQ.jpeg',
@@ -2442,11 +2442,20 @@ const AdmissionForm = () => {
     setError(null);
     
     try {
-      const path = 'admissions';
-      await addDoc(collection(db, path), {
-        ...formData,
-        submittedAt: serverTimestamp()
+      // Calling the custom backend API to send email
+      const response = await fetch('/api/send-admission-form', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'আবেদন পাঠাতে সমস্যা হয়েছে।');
+      }
 
       setIsSubmitted(true);
       setFormData({
@@ -2462,17 +2471,7 @@ const AdmissionForm = () => {
       });
     } catch (err) {
       console.error('Admission submission error:', err);
-      if (err instanceof Error && err.message.includes('permission-denied')) {
-        setError('দুঃখিত, আপনার এই তথ্য পাঠানোর অনুমতি নেই। অনুগ্রহ করে অ্যাডমিনের সাথে যোগাযোগ করুন।');
-      } else {
-        setError('আবেদন পাঠাতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
-      }
-      
-      try {
-        handleFirestoreError(err, OperationType.CREATE, 'admissions');
-      } catch (e) {
-        // Error already logged by handleFirestoreError
-      }
+      setError('আবেদন পাঠাতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন বা সরাসরি যোগাযোগ করুন।');
     } finally {
       setIsSubmitting(false);
     }
@@ -2587,15 +2586,25 @@ const AdmissionForm = () => {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-black text-blue-900 uppercase tracking-wider">শিক্ষার্থী/অভিভাবকের ইমেইল</label>
+                <label className="text-sm font-black text-blue-900 uppercase tracking-wider">স্টার কিডস্ অফিস ইমেইল</label>
+                <input 
+                  type="email" 
+                  readOnly
+                  disabled
+                  value="abuhasan14330@gmail.com"
+                  className="w-full bg-slate-100 border-none rounded-xl p-4 text-slate-500 cursor-not-allowed opacity-75 font-medium" 
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-black text-blue-900 uppercase tracking-wider">শিক্ষার্থীর ইমেইল</label>
                 <input 
                   type="email" 
                   name="studentEmail"
                   required
                   value={formData.studentEmail}
                   onChange={handleChange}
-                  className="w-full bg-blue-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-yellow-400 transition-all" 
-                  placeholder="example@gmail.com" 
+                  className="w-full bg-blue-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-yellow-400 transition-all font-medium" 
+                  placeholder="যেখানে তথ্য পাঠানো হবে" 
                 />
               </div>
               <div className="space-y-2">
