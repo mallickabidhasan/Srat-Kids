@@ -47,6 +47,34 @@
         "submittedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["studentName", "mobile", "submittedAt"]
+    },
+    "ScholarshipApplication": {
+      "title": "Scholarship Application",
+      "description": "A student's application for the scholarship festival.",
+      "type": "object",
+      "properties": {
+        "schoolName": { "type": "string" },
+        "className": { "type": "string" },
+        "studentNameBn": { "type": "string" },
+        "studentNameEn": { "type": "string" },
+        "fatherNameBn": { "type": "string" },
+        "motherNameBn": { "type": "string" },
+        "village": { "type": "string" },
+        "postOffice": { "type": "string" },
+        "upazila": { "type": "string" },
+        "district": { "type": "string" },
+        "mobile": { "type": "string" },
+        "religion": { "type": "string" },
+        "nationality": { "type": "string" },
+        "isAgreed": { "type": "boolean" },
+        "submittedAt": { "type": "string", "format": "date-time" },
+        "paymentStatus": { "type": "string" },
+        "paymentMethod": { "type": "string" },
+        "senderNumber": { "type": "string" },
+        "trxId": { "type": "string" },
+        "paymentSubmittedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["schoolName", "studentNameBn", "mobile", "submittedAt"]
     }
   },
   "firestore": {
@@ -61,6 +89,10 @@
     "admissions": {
       "schema": "AdmissionApplication",
       "description": "Collection of student admission applications."
+    },
+    "scholarship_applications": {
+      "schema": "ScholarshipApplication",
+      "description": "Collection of scholarship festival applications."
     }
   }
 }

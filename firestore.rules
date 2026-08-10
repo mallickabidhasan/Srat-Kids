@@ -68,6 +68,14 @@ service cloud.firestore {
              data.submittedAt is timestamp;
     }
 
+    function isValidScholarshipApplication(data) {
+      return data.schoolName is string && data.schoolName.size() > 0 &&
+             data.studentNameBn is string && data.studentNameBn.size() > 0 &&
+             data.mobile is string && data.mobile.size() > 0 &&
+             data.submittedAt is timestamp &&
+             data.isAgreed == true;
+    }
+
     // ===============================================================
     // Collection Rules
     // ===============================================================
@@ -88,6 +96,12 @@ service cloud.firestore {
     match /admissions/{admissionId} {
       allow create: if isValidAdmission(request.resource.data);
       allow read, update, delete: if isAdmin();
+    }
+
+    match /scholarship_applications/{scholarshipId} {
+      allow create: if isValidScholarshipApplication(request.resource.data);
+      allow update: if true;
+      allow read, delete: if isAdmin();
     }
     
     match /users/{userId} {

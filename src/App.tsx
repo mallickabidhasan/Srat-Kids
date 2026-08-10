@@ -32,12 +32,17 @@ import {
   Send,
   MessageCircle,
   Music2,
-  Calendar
+  Calendar,
+  Sparkles,
+  CreditCard,
+  Building2,
+  ShieldCheck
 } from 'lucide-react';
 import { motion, AnimatePresence, animate, useInView } from 'framer-motion';
 import { db, auth } from './firebase';
-import { collection, addDoc, serverTimestamp, getDocFromServer, doc, runTransaction, setDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, runTransaction, setDoc, getDoc } from 'firebase/firestore';
 import StarAIChat from './components/StarAIChat';
+import { ScholarshipApplicationPage } from './components/ScholarshipApplicationPage';
 
 enum OperationType {
   CREATE = 'create',
@@ -90,17 +95,7 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
   throw new Error(JSON.stringify(errInfo));
 }
 
-async function testConnection() {
-  try {
-    if (!db) return;
-    await getDocFromServer(doc(db, 'test', 'connection'));
-  } catch (error) {
-    if(error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration. The client is offline.");
-    }
-  }
-}
-// testConnection() call removed from top level
+
 
 // --- Types ---
 interface Class {
@@ -683,7 +678,11 @@ const VideoModal = ({
   );
 };
 
-const Navbar = ({ onImageClick }: { onImageClick: (src: string, caption?: string) => void }) => {
+const Navbar = ({ 
+  onImageClick 
+}: { 
+  onImageClick: (src: string, caption?: string) => void; 
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -701,6 +700,8 @@ const Navbar = ({ onImageClick }: { onImageClick: (src: string, caption?: string
     { name: 'ভর্তি', href: '#admission' },
     { name: 'ব্লগ', href: '#blog' },
   ];
+
+  const directGmailUrl = "mailto:abuhasan14330@gmail.com";
 
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-lg py-2' : 'bg-transparent py-4'}`}>
@@ -720,7 +721,7 @@ const Navbar = ({ onImageClick }: { onImageClick: (src: string, caption?: string
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             {navLinks.map((link) => (
               <a
                 key={link.name}
@@ -730,13 +731,35 @@ const Navbar = ({ onImageClick }: { onImageClick: (src: string, caption?: string
                 {link.name}
               </a>
             ))}
+            
+            <a
+              href={directGmailUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full font-bold text-sm transition-all flex items-center gap-2 shadow-md hover:shadow-red-600/30 transform hover:scale-105"
+              title="Gmail-এ সরাসরি ইমেইল পাঠান"
+            >
+              <Mail size={16} />
+              <span>Gmail</span>
+            </a>
+
             <a href="#admission" className="bg-yellow-400 text-blue-900 px-6 py-2 rounded-full font-bold hover:bg-yellow-300 transition-all transform hover:scale-105">
               Apply Now
             </a>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2">
+            <a
+              href={directGmailUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-red-600 text-white p-2 rounded-full font-bold text-xs shadow-md"
+              title="Gmail"
+            >
+              <Mail size={20} />
+            </a>
+
             <button onClick={() => setIsOpen(!isOpen)} className={scrolled ? 'text-blue-900' : 'text-white'}>
               {isOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
@@ -764,6 +787,16 @@ const Navbar = ({ onImageClick }: { onImageClick: (src: string, caption?: string
                   {link.name}
                 </a>
               ))}
+              <a
+                href={directGmailUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setIsOpen(false)}
+                className="w-full text-left px-3 py-4 text-base font-bold text-red-600 border-b border-gray-50 hover:bg-red-50 flex items-center gap-2"
+              >
+                <Mail size={18} />
+                <span>সরাসরি Gmail-এ ইমেইল করুন</span>
+              </a>
             </div>
           </motion.div>
         )}
@@ -840,8 +873,7 @@ const Hero = ({
 const NoticeBoard = () => {
   const [currentNotice, setCurrentNotice] = useState(0);
   const notices = [
-    "আগামী ২৮ মার্চ, ২০২৬ থেকে কোচিং এর সময়সূচী: সকাল (৬:৩০টা থেকে ৮:৪৫) এবং বিকাল (৩:০০টা থেকে ৫:১৫)",
-    "এই সপ্তাহের সাপ্তাহিক পরীক্ষা অনুষ্ঠিত হবে ২৯ মার্চ।",
+    "কোচিং এর সময়সূচী: সকাল (৬:৩০টা থেকে ৮:৪৫) এবং বিকাল (৩:০০টা থেকে ৫:১৫)",
     "আগামী সোমবার ৩০ মার্চ থেকে যথারীতি কোচিংয়ের কার্যক্রম চলবে।",
     "শ্রেণী কার্যক্রম নিয়ে কিংবা কোনো অনিয়ম বা অসঙ্গতি ধরা পড়লে অভিযোগের জন্য সরাসরি অফিস কক্ষে যোগাযোগ করুন।"
   ];
@@ -1074,6 +1106,58 @@ const About = ({ onImageClick }: { onImageClick: (src: string, caption?: string)
           </div>
         )}
       </AnimatePresence>
+    </section>
+  );
+};
+
+const ScholarshipFestivalSection = ({ onApplyClick }: { onApplyClick: () => void }) => {
+  return (
+    <section className="py-12 bg-gradient-to-b from-white via-blue-50/60 to-blue-50 relative overflow-hidden">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Animated Banner Button */}
+        <motion.div 
+          onClick={onApplyClick}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="relative cursor-pointer group rounded-[2.5rem] p-8 md:p-12 bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-950 text-white shadow-2xl border-4 border-yellow-400 overflow-hidden text-center"
+        >
+          {/* Background Lighting Effects */}
+          <div className="absolute -top-24 -left-24 w-60 h-60 bg-yellow-400/20 rounded-full blur-3xl group-hover:bg-yellow-400/30 transition-all pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-60 h-60 bg-blue-500/20 rounded-full blur-3xl group-hover:bg-blue-500/30 transition-all pointer-events-none" />
+
+          {/* Logo Animation */}
+          <motion.div 
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+            className="relative z-10 mb-4 inline-block"
+          >
+            <div className="p-3 bg-white/10 rounded-full backdrop-blur-md border border-white/20 shadow-lg">
+              <img 
+                src="https://i.imgur.com/PmCP59l.png" 
+                alt="STAR KIDS Logo" 
+                className="w-16 h-16 md:w-20 md:h-20 object-contain filter drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+          </motion.div>
+
+          {/* Title Text */}
+          <h2 className="relative z-10 text-3xl md:text-5xl font-black text-yellow-400 mb-6 tracking-tight drop-shadow-md">
+            স্টার বৃত্তি উৎসব ২০২৬
+          </h2>
+
+          {/* Animated Call-to-action Button */}
+          <motion.div 
+            animate={{ scale: [1, 1.03, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="relative z-10 inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-blue-950 px-8 py-4 rounded-full font-black text-lg md:text-2xl shadow-xl hover:shadow-yellow-400/50 transition-all border-2 border-white"
+          >
+            <Sparkles size={26} className="text-blue-950 animate-spin" />
+            <span>আবেদন করতে এখানে ক্লিক করুন</span>
+            <ChevronRight size={28} className="animate-pulse" />
+          </motion.div>
+        </motion.div>
+      </div>
     </section>
   );
 };
@@ -2202,7 +2286,7 @@ const VisitorCounter = () => {
         console.error('Error updating visitor count:', error);
         // Fallback: just read the count if increment fails (e.g. permission issues or already incremented in another tab)
         try {
-          const visitorDoc = await getDocFromServer(visitorDocRef);
+          const visitorDoc = await getDoc(visitorDocRef);
           if (visitorDoc.exists()) {
             setVisitorCount(visitorDoc.data().count);
           }
@@ -2442,19 +2526,35 @@ const AdmissionForm = () => {
     setError(null);
     
     try {
-      // Calling the custom backend API to send email
-      const response = await fetch('/api/send-admission-form', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      // 1. Save to Firebase Firestore database
+      await addDoc(collection(db, 'admissions'), {
+        studentName: formData.studentName,
+        fatherName: formData.fatherName,
+        motherName: formData.motherName,
+        schoolName: formData.schoolName,
+        className: formData.className,
+        mobile: formData.mobile,
+        religion: formData.religion,
+        shift: formData.shift,
+        studentEmail: formData.studentEmail,
+        submittedAt: serverTimestamp()
       });
 
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || 'আবেদন পাঠাতে সমস্যা হয়েছে।');
+      // 2. Best-effort email notification via server API
+      try {
+        const response = await fetch('/api/send-admission-form', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+        const result = await response.json();
+        if (!result.success) {
+          console.warn('Email notification notice:', result.error);
+        }
+      } catch (emailErr) {
+        console.warn('Email notification request failed:', emailErr);
       }
 
       setIsSubmitted(true);
@@ -2787,11 +2887,17 @@ const DesignerInfo = () => {
   );
 };
 
-const Footer = ({ onImageClick }: { onImageClick: (src: string, caption?: string) => void }) => {
+const Footer = ({ 
+  onImageClick 
+}: { 
+  onImageClick: (src: string, caption?: string) => void;
+}) => {
   const logoUrl = "https://i.imgur.com/PmCP59l.png";
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+
+  const directGmailUrl = "mailto:abuhasan14330@gmail.com";
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -2845,7 +2951,13 @@ const Footer = ({ onImageClick }: { onImageClick: (src: string, caption?: string
               <a href="https://www.facebook.com/atmabuhasan" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-blue-900 transition-all">
                 <Facebook size={18} />
               </a>
-              <a href="mailto:abuhasan14330@gmail.com" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-blue-900 transition-all">
+              <a 
+                href={directGmailUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                title="Gmail-এ সরাসরি মেইল পাঠান"
+                className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-500 text-white transition-all shadow-md"
+              >
                 <Mail size={18} />
               </a>
               <a href="https://wa.me/+8801711624478" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-blue-900 transition-all">
@@ -2886,9 +2998,14 @@ const Footer = ({ onImageClick }: { onImageClick: (src: string, caption?: string
                 <Phone className="text-yellow-400 shrink-0" size={20} />
                 <a href="tel:+8801711624478" className="text-blue-100 hover:text-yellow-400 transition-colors">+88 01711624478</a>
               </li>
-              <li className="flex gap-4">
+              <li className="flex gap-4 items-center">
                 <Mail className="text-yellow-400 shrink-0" size={20} />
-                <a href="mailto:abuhasan14330@gmail.com" className="text-blue-100 hover:text-yellow-400 transition-colors">abuhasan14330@gmail.com</a>
+                <a 
+                  href={directGmailUrl} 
+                  className="text-blue-100 hover:text-yellow-400 font-bold transition-colors text-left flex items-center gap-2"
+                >
+                  <span>abuhasan14330@gmail.com</span>
+                </a>
               </li>
             </ul>
           </div>
@@ -3120,12 +3237,39 @@ export default function App() {
   const [lightboxCaption, setLightboxCaption] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [isFreeClassModalOpen, setIsFreeClassModalOpen] = useState(false);
+  const [activeView, setActiveView] = useState<'home' | 'scholarship'>('home');
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#scholarship-apply') {
+        setActiveView('scholarship');
+      } else if (activeView === 'scholarship' && !window.location.hash) {
+        setActiveView('home');
+      }
+    };
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const openScholarshipPage = () => {
+    setActiveView('scholarship');
+    window.location.hash = 'scholarship-apply';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const backToHome = () => {
+    setActiveView('home');
+    if (window.location.hash === '#scholarship-apply') {
+      window.history.pushState("", document.title, window.location.pathname + window.location.search);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 800);
-    testConnection();
     return () => clearTimeout(timer);
   }, []);
 
@@ -3153,28 +3297,33 @@ export default function App() {
         {isLoading && <LoadingScreen key="loading" />}
       </AnimatePresence>
 
-      <div className="">
-        <Navbar onImageClick={openLightbox} />
-        <Hero onImageClick={openLightbox} onVideoClick={openVideo} />
-        <NoticeBoard />
-        <About onImageClick={openLightbox} />
-        <ClassesSection />
-        <FacebookSection />
-        <CoursesSection />
-        <Administration onImageClick={openLightbox} />
-        <ChiefCoordinatorSection onImageClick={openLightbox} />
-        <ExperiencedTeachers onImageClick={openLightbox} />
-        <ClassTeachers onImageClick={openLightbox} onFreeClassClick={() => setIsFreeClassModalOpen(true)} />
-        <GeneralFaculty />
-        <ITDepartment />
-        <BlogSection onImageClick={openLightbox} />
-        <VisitorCounter />
-        <FeeSection />
-        <AdmissionForm />
-        <Sponsors />
-        <SocialLinks />
-        <Footer onImageClick={openLightbox} />
-      </div>
+      {activeView === 'scholarship' ? (
+        <ScholarshipApplicationPage onBackToHome={backToHome} />
+      ) : (
+        <div className="">
+          <Navbar onImageClick={openLightbox} />
+          <Hero onImageClick={openLightbox} onVideoClick={openVideo} />
+          <NoticeBoard />
+          <About onImageClick={openLightbox} />
+          <ScholarshipFestivalSection onApplyClick={openScholarshipPage} />
+          <ClassesSection />
+          <FacebookSection />
+          <CoursesSection />
+          <Administration onImageClick={openLightbox} />
+          <ChiefCoordinatorSection onImageClick={openLightbox} />
+          <ExperiencedTeachers onImageClick={openLightbox} />
+          <ClassTeachers onImageClick={openLightbox} onFreeClassClick={() => setIsFreeClassModalOpen(true)} />
+          <GeneralFaculty />
+          <ITDepartment />
+          <BlogSection onImageClick={openLightbox} />
+          <VisitorCounter />
+          <FeeSection />
+          <AdmissionForm />
+          <Sponsors />
+          <SocialLinks />
+          <Footer onImageClick={openLightbox} />
+        </div>
+      )}
       
       <ImageLightbox 
         src={lightboxImage} 
