@@ -36,13 +36,17 @@ import {
   Sparkles,
   CreditCard,
   Building2,
-  ShieldCheck
+  ShieldCheck,
+  Download,
+  FileText
 } from 'lucide-react';
 import { motion, AnimatePresence, animate, useInView } from 'framer-motion';
 import { db, auth } from './firebase';
 import { collection, addDoc, serverTimestamp, doc, runTransaction, setDoc, getDoc } from 'firebase/firestore';
 import StarAIChat from './components/StarAIChat';
 import { ScholarshipApplicationPage } from './components/ScholarshipApplicationPage';
+import { AdmitCardDownloadPage } from './components/AdmitCardDownloadPage';
+import { ScholarshipFestivalModal } from './components/ScholarshipFestivalModal';
 
 enum OperationType {
   CREATE = 'create',
@@ -874,7 +878,6 @@ const NoticeBoard = () => {
   const [currentNotice, setCurrentNotice] = useState(0);
   const notices = [
     "কোচিং এর সময়সূচী: সকাল (৬:৩০টা থেকে ৮:৪৫) এবং বিকাল (৩:০০টা থেকে ৫:১৫)",
-    "আগামী সোমবার ৩০ মার্চ থেকে যথারীতি কোচিংয়ের কার্যক্রম চলবে।",
     "শ্রেণী কার্যক্রম নিয়ে কিংবা কোনো অনিয়ম বা অসঙ্গতি ধরা পড়লে অভিযোগের জন্য সরাসরি অফিস কক্ষে যোগাযোগ করুন।"
   ];
 
@@ -1110,53 +1113,81 @@ const About = ({ onImageClick }: { onImageClick: (src: string, caption?: string)
   );
 };
 
-const ScholarshipFestivalSection = ({ onApplyClick }: { onApplyClick: () => void }) => {
+const ScholarshipFestivalSection = ({ 
+  onApplyClick, 
+  onDownloadAdmitClick 
+}: { 
+  onApplyClick: () => void; 
+  onDownloadAdmitClick: () => void; 
+}) => {
   return (
-    <section className="py-12 bg-gradient-to-b from-white via-blue-50/60 to-blue-50 relative overflow-hidden">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Animated Banner Button */}
-        <motion.div 
-          onClick={onApplyClick}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="relative cursor-pointer group rounded-[2.5rem] p-8 md:p-12 bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-950 text-white shadow-2xl border-4 border-yellow-400 overflow-hidden text-center"
+    <section className="py-4 sm:py-6 bg-gradient-to-b from-white via-blue-50/50 to-blue-50 relative overflow-hidden">
+      <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8">
+        {/* Main Scholarship Festival Card */}
+        <div 
+          className="relative rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-7 bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-950 text-white shadow-xl border-2 sm:border-3 border-yellow-400 overflow-hidden text-center"
         >
           {/* Background Lighting Effects */}
-          <div className="absolute -top-24 -left-24 w-60 h-60 bg-yellow-400/20 rounded-full blur-3xl group-hover:bg-yellow-400/30 transition-all pointer-events-none" />
-          <div className="absolute -bottom-24 -right-24 w-60 h-60 bg-blue-500/20 rounded-full blur-3xl group-hover:bg-blue-500/30 transition-all pointer-events-none" />
+          <div className="absolute -top-20 -left-20 w-48 h-48 bg-yellow-400/15 rounded-full blur-2xl transition-all pointer-events-none" />
+          <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-blue-500/15 rounded-full blur-2xl transition-all pointer-events-none" />
 
-          {/* Logo Animation */}
-          <motion.div 
-            animate={{ y: [0, -8, 0] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-            className="relative z-10 mb-4 inline-block"
-          >
-            <div className="p-3 bg-white/10 rounded-full backdrop-blur-md border border-white/20 shadow-lg">
+          {/* Header Row with Logo & Title */}
+          <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3 mb-2 sm:mb-2.5">
+            <motion.div 
+              animate={{ y: [0, -4, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+              className="p-1.5 sm:p-2 bg-white/10 rounded-full backdrop-blur-md border border-white/20 shadow-md shrink-0"
+            >
               <img 
                 src="https://i.imgur.com/PmCP59l.png" 
                 alt="STAR KIDS Logo" 
-                className="w-16 h-16 md:w-20 md:h-20 object-contain filter drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]"
+                className="w-10 h-10 sm:w-12 sm:h-12 object-contain filter drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]"
                 referrerPolicy="no-referrer"
               />
+            </motion.div>
+            
+            <div className="text-center sm:text-left">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-yellow-400 tracking-tight drop-shadow-sm">
+                স্টার বৃত্তি উৎসব ২০২৬
+              </h2>
+              <p className="text-blue-200 text-xs sm:text-sm font-bold">
+                সাতক্ষীরা জেলার সর্ববৃহৎ ও নির্ভরযোগ্য মেধা বিকাশ প্রতিযোগিতা
+              </p>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Title Text */}
-          <h2 className="relative z-10 text-3xl md:text-5xl font-black text-yellow-400 mb-6 tracking-tight drop-shadow-md">
-            স্টার বৃত্তি উৎসব ২০২৬
-          </h2>
+          {/* Action Buttons: Side by Side on Tablet/Desktop for Minimal Vertical Space */}
+          <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3.5 max-w-2xl mx-auto my-3">
+            {/* Primary Action: Application */}
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onApplyClick}
+              className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-blue-950 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base md:text-lg shadow-md hover:shadow-yellow-400/40 transition-all border border-white cursor-pointer whitespace-nowrap"
+            >
+              <Sparkles size={18} className="text-blue-950 animate-spin shrink-0" />
+              <span className="whitespace-nowrap">আবেদন করতে এখানে ক্লিক করুন</span>
+              <ChevronRight size={18} className="shrink-0" />
+            </motion.button>
 
-          {/* Animated Call-to-action Button */}
-          <motion.div 
-            animate={{ scale: [1, 1.03, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="relative z-10 inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-blue-950 px-8 py-4 rounded-full font-black text-lg md:text-2xl shadow-xl hover:shadow-yellow-400/50 transition-all border-2 border-white"
-          >
-            <Sparkles size={26} className="text-blue-950 animate-spin" />
-            <span>আবেদন করতে এখানে ক্লিক করুন</span>
-            <ChevronRight size={28} className="animate-pulse" />
-          </motion.div>
-        </motion.div>
+            {/* Secondary Action: Admit Card Download */}
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onDownloadAdmitClick}
+              className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white hover:text-yellow-300 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm md:text-base shadow-md border border-white/30 hover:border-yellow-400 transition-all cursor-pointer backdrop-blur-md group whitespace-nowrap"
+            >
+              <Download size={18} className="text-yellow-400 group-hover:animate-bounce shrink-0" />
+              <span className="whitespace-nowrap">প্রবেশ পত্র ডাউনলোড করুন</span>
+            </motion.button>
+          </div>
+
+          {/* Compact Date Information Footer */}
+          <div className="relative z-10 mt-2.5 pt-2.5 border-t border-white/10 flex items-center justify-center gap-1.5 text-[11px] sm:text-xs md:text-sm font-medium text-blue-200">
+            <Calendar size={14} className="text-yellow-400 shrink-0" />
+            <span>প্রবেশপত্র ডাউনলোড উন্মুক্ত: ২০ সেপ্টেম্বর হতে ৮ অক্টোবর ২০২৬ রাত ১২:০০ টা পর্যন্ত</span>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -1304,15 +1335,14 @@ const FacebookSection = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-white p-1 md:p-4 rounded-[2rem] shadow-[0_32px_64px_-16px_rgba(30,58,138,0.15)] border border-blue-50 relative overflow-hidden"
+            className="bg-white p-2 md:p-4 rounded-[2rem] shadow-[0_32px_64px_-16px_rgba(30,58,138,0.15)] border border-blue-50 relative overflow-hidden flex flex-col items-center justify-center"
           >
-            <div className="w-full overflow-hidden rounded-xl bg-slate-50">
+            <div className="w-full flex items-center justify-center overflow-hidden rounded-2xl bg-slate-50 relative shadow-inner text-center">
               <iframe 
-                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fstarkidssatkhira&tabs=timeline&width=500&height=800&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
-                width="100%" 
-                height="800" 
-                style={{ border: 'none', overflow: 'hidden', minHeight: '600px' }} 
-                scrolling="no" 
+                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fstarkidssatkhira&tabs=timeline&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
+                className="w-full max-w-[500px] mx-auto block min-h-[500px] h-[550px] sm:h-[600px] border-0"
+                style={{ border: 'none', overflow: 'hidden' }} 
+                scrolling="yes" 
                 frameBorder="0" 
                 allowFullScreen={true} 
                 allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
@@ -3233,24 +3263,27 @@ const LoadingScreen = () => {
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isScholarshipModalOpen, setIsScholarshipModalOpen] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [lightboxCaption, setLightboxCaption] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [isFreeClassModalOpen, setIsFreeClassModalOpen] = useState(false);
-  const [activeView, setActiveView] = useState<'home' | 'scholarship'>('home');
+  const [activeView, setActiveView] = useState<'home' | 'scholarship' | 'admit_card'>('home');
 
   useEffect(() => {
     const handleHashChange = () => {
       if (window.location.hash === '#scholarship-apply') {
         setActiveView('scholarship');
-      } else if (activeView === 'scholarship' && !window.location.hash) {
+      } else if (window.location.hash === '#admit-card') {
+        setActiveView('admit_card');
+      } else if ((activeView === 'scholarship' || activeView === 'admit_card') && !window.location.hash) {
         setActiveView('home');
       }
     };
     handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  }, [activeView]);
 
   const openScholarshipPage = () => {
     setActiveView('scholarship');
@@ -3258,9 +3291,15 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const openAdmitCardPage = () => {
+    setActiveView('admit_card');
+    window.location.hash = 'admit-card';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const backToHome = () => {
     setActiveView('home');
-    if (window.location.hash === '#scholarship-apply') {
+    if (window.location.hash === '#scholarship-apply' || window.location.hash === '#admit-card') {
       window.history.pushState("", document.title, window.location.pathname + window.location.search);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3269,6 +3308,12 @@ export default function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
+      // Open scholarship notification popup on website open (if on home view)
+      if (!window.location.hash || window.location.hash === '#') {
+        setTimeout(() => {
+          setIsScholarshipModalOpen(true);
+        }, 500);
+      }
     }, 800);
     return () => clearTimeout(timer);
   }, []);
@@ -3299,13 +3344,18 @@ export default function App() {
 
       {activeView === 'scholarship' ? (
         <ScholarshipApplicationPage onBackToHome={backToHome} />
+      ) : activeView === 'admit_card' ? (
+        <AdmitCardDownloadPage onBackToHome={backToHome} />
       ) : (
         <div className="">
           <Navbar onImageClick={openLightbox} />
           <Hero onImageClick={openLightbox} onVideoClick={openVideo} />
           <NoticeBoard />
           <About onImageClick={openLightbox} />
-          <ScholarshipFestivalSection onApplyClick={openScholarshipPage} />
+          <ScholarshipFestivalSection 
+            onApplyClick={openScholarshipPage} 
+            onDownloadAdmitClick={openAdmitCardPage} 
+          />
           <ClassesSection />
           <FacebookSection />
           <CoursesSection />
@@ -3342,6 +3392,13 @@ export default function App() {
         url={videoUrl} 
         isOpen={!!videoUrl} 
         onClose={closeVideo} 
+      />
+
+      <ScholarshipFestivalModal
+        isOpen={isScholarshipModalOpen && !isLoading && activeView === 'home'}
+        onClose={() => setIsScholarshipModalOpen(false)}
+        onApplyClick={openScholarshipPage}
+        onDownloadAdmitClick={openAdmitCardPage}
       />
     </div>
   );

@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import { 
   Building2, GraduationCap, Users, MapPin, Phone, 
   ShieldCheck, CreditCard, ArrowLeft, CheckCircle2, 
-  Printer, Sparkles, ChevronRight, AlertCircle, FileText,
+  Sparkles, ChevronRight, AlertCircle, FileText,
   Home, Copy, Check, Download
 } from 'lucide-react';
 import { db, auth } from '../firebase';
-import { collection, addDoc, serverTimestamp, doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, setDoc, getDocs } from 'firebase/firestore';
+import { downloadElementAsPdf } from '../utils/pdfExport';
 
 enum OperationType {
   CREATE = 'create',
@@ -99,6 +98,7 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
   });
 
   const [submittedDocId, setSubmittedDocId] = useState<string | null>(null);
+  const [assignedFormRollNo, setAssignedFormRollNo] = useState<string>('2500');
 
   // Payment Form State
   const [paymentData, setPaymentData] = useState({
@@ -134,42 +134,10 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
       return;
     }
 
-    setIsSubmittingForm(true);
     setErrorMessage(null);
-
-    try {
-      // 1. Save initial application to Firestore
-      let docRef;
-      try {
-        docRef = await addDoc(collection(db, 'scholarship_applications'), {
-          ...formData,
-          submittedAt: serverTimestamp(),
-          paymentStatus: 'pending_payment'
-        });
-        setSubmittedDocId(docRef.id);
-      } catch (fsErr) {
-        handleFirestoreError(fsErr, OperationType.CREATE, 'scholarship_applications');
-      }
-
-      // 2. Call backend email API to notify admin
-      try {
-        await fetch('/api/send-scholarship-form', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
-        });
-      } catch (emailErr) {
-        console.warn('Scholarship email request warning:', emailErr);
-      }
-
-      // Move to step 2 (Payment System)
-      setCurrentStep(2);
-    } catch (err) {
-      console.error('Error submitting scholarship form:', err);
-      setErrorMessage('আবেদন জমা দিতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
-    } finally {
-      setIsSubmittingForm(false);
-    }
+    // Proceed to Step 2 (Payment) without saving to Firestore yet
+    setCurrentStep(2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handlePaymentSubmit = async (e: React.FormEvent) => {
@@ -181,25 +149,76 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
 
     setIsSubmittingPayment(true);
     try {
-      if (submittedDocId) {
-        try {
-          await setDoc(doc(db, 'scholarship_applications', submittedDocId), {
+      // Determine next sequential Form No & Roll No starting from 2500
+      let nextNumber = 2500;
+      try {
+        const appsSnapshot = await getDocs(collection(db, 'scholarship_applications'));
+        let maxVal = 2499;
+        appsSnapshot.forEach((d) => {
+          const data = d.data();
+          const val = parseInt(data.formNo || data.rollNumber || '0', 10);
+          if (!isNaN(val) && val > maxVal) {
+            maxVal = val;
+          }
+        });
+        if (maxVal >= 2500) {
+          nextNumber = maxVal + 1;
+        } else {
+          nextNumber = 2500 + appsSnapshot.size;
+        }
+      } catch (cntErr) {
+        console.warn('Could not query existing applications count, defaulting to 2500:', cntErr);
+      }
+
+      const assignedNumberStr = nextNumber.toString();
+      setAssignedFormRollNo(assignedNumberStr);
+
+      // Save full application to Firestore ONLY when both Step 1 and Step 2 are completed
+      let docId = '';
+      try {
+        const completeData = {
+          ...formData,
+          formNo: assignedNumberStr,
+          rollNumber: assignedNumberStr,
+          paymentMethod: paymentData.method,
+          senderNumber: paymentData.senderNumber,
+          trxId: paymentData.trxId,
+          paymentStatus: 'paid_pending_verification',
+          submittedAt: serverTimestamp(),
+          paymentSubmittedAt: serverTimestamp()
+        };
+
+        const docRef = await addDoc(collection(db, 'scholarship_applications'), completeData);
+        docId = docRef.id;
+        setSubmittedDocId(docId);
+      } catch (fsErr) {
+        handleFirestoreError(fsErr, OperationType.CREATE, 'scholarship_applications');
+      }
+
+      // Call backend email notification route (asynchronous)
+      try {
+        await fetch('/api/send-scholarship-form', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...formData,
+            formNo: assignedNumberStr,
+            rollNumber: assignedNumberStr,
             paymentMethod: paymentData.method,
             senderNumber: paymentData.senderNumber,
             trxId: paymentData.trxId,
-            paymentStatus: 'paid_pending_verification',
-            paymentSubmittedAt: serverTimestamp()
-          }, { merge: true });
-        } catch (fsErr) {
-          handleFirestoreError(fsErr, OperationType.UPDATE, `scholarship_applications/${submittedDocId}`);
-        }
+          })
+        });
+      } catch (emailErr) {
+        console.warn('Scholarship email request notice:', emailErr);
       }
 
-      // Move to Step 3 (Success confirmation)
+      // Move to Step 3 (Success confirmation and printable slip)
       setCurrentStep(3);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
-      console.error('Error updating payment info:', err);
-      alert('পেমেন্ট তথ্য আপডেট করতে সমস্যা হয়েছে।');
+      console.error('Error submitting application and payment:', err);
+      alert('আবেদন জমা দিতে সমস্যা হয়েছে। অনুগ্রহ করে ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।');
     } finally {
       setIsSubmittingPayment(false);
     }
@@ -214,37 +233,17 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
   const handleDownloadAndWhatsApp = async () => {
     setIsDownloadingPDF(true);
     try {
-      const element = document.getElementById('printable-slip');
-      if (element) {
-        const canvas = await html2canvas(element, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: false,
-          logging: false,
-          backgroundColor: '#f8fafc'
-        });
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: 'a4'
-        });
-
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const margin = 10;
-        const targetWidth = pdfWidth - margin * 2;
-        const targetHeight = (canvas.height * targetWidth) / canvas.width;
-
-        pdf.addImage(imgData, 'JPEG', margin, margin, targetWidth, targetHeight);
-        const filename = `Scholarship_Slip_${formData.studentNameEn ? formData.studentNameEn.trim().replace(/\s+/g, '_') : '2026'}.pdf`;
-        
-        pdf.save(filename);
-      } else {
-        window.print();
-      }
+      const filename = `Scholarship_Slip_${formData.studentNameEn ? formData.studentNameEn.trim().replace(/\s+/g, '_') : '2026'}.pdf`;
+      await downloadElementAsPdf({
+        elementId: 'printable-slip',
+        filename,
+        scale: 2,
+        orientation: 'portrait',
+        marginMm: 8,
+        backgroundColor: '#ffffff'
+      });
     } catch (err) {
-      console.error("PDF generation failed:", err);
-      window.print();
+      console.error("PDF generation error:", err);
     } finally {
       setIsDownloadingPDF(false);
     }
@@ -252,6 +251,7 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
     // Prepare WhatsApp message with all filled details
     const message = `*স্টার বৃত্তি উৎসব ২০২৬ - আবেদন স্লিপ*
 
+🔢 *ফরম ও রোল নং:* ${assignedFormRollNo || '২৫০০'}
 👤 *ছাত্র/ছাত্রীর নাম:* ${formData.studentNameBn} (${formData.studentNameEn})
 📚 *শ্রেণী:* ${formData.className}
 🏫 *বিদ্যালয়ের নাম:* ${formData.schoolName}
@@ -844,6 +844,16 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
 
                 {/* Details Table */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-medium">
+                  <div className="bg-amber-50 p-3.5 rounded-xl border border-amber-300 sm:col-span-2 flex items-center justify-between">
+                    <div>
+                      <span className="text-xs text-amber-900 font-bold block">নির্ধারিত ফরম নং ও রোল নম্বর:</span>
+                      <span className="text-xs text-slate-600 font-semibold">আবেদন ও প্রবেশপত্রের জন্য নির্ধারিত কোড</span>
+                    </div>
+                    <span className="text-xl font-black text-blue-950 font-mono tracking-widest bg-white px-4 py-1 rounded-lg border border-amber-400 shadow-inner">
+                      {assignedFormRollNo || '2500'}
+                    </span>
+                  </div>
+
                   <div className="bg-white p-3.5 rounded-xl border border-slate-200">
                     <span className="text-xs text-slate-500 font-bold block">ছাত্র/ছাত্রীর নাম:</span>
                     <span className="text-base font-black text-blue-950">{formData.studentNameBn} ({formData.studentNameEn})</span>
@@ -881,23 +891,40 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
               </div>
 
               {/* Printable / Navigation Actions */}
-              <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-                <button
-                  onClick={handleDownloadAndWhatsApp}
-                  disabled={isDownloadingPDF}
-                  className="px-6 py-3.5 bg-blue-900 hover:bg-blue-800 disabled:bg-blue-900/70 text-yellow-400 rounded-xl font-black text-sm transition-all flex items-center gap-2 shadow-md active:scale-95 disabled:cursor-not-allowed"
-                >
-                  <Download size={18} className={isDownloadingPDF ? 'animate-bounce' : ''} />
-                  <span>{isDownloadingPDF ? 'PDF তৈরি হচ্ছে...' : 'স্লিপ ডাউনলোড করুন'}</span>
-                </button>
+              <div className="flex flex-col items-center justify-center gap-3 pt-2">
+                <div className="flex flex-wrap items-center justify-center gap-4">
+                  <button
+                    onClick={handleDownloadAndWhatsApp}
+                    disabled={isDownloadingPDF}
+                    className="px-6 py-3.5 bg-gradient-to-r from-blue-900 to-indigo-900 hover:from-blue-800 hover:to-indigo-800 disabled:opacity-75 text-yellow-400 rounded-xl font-black text-sm transition-all flex items-center gap-2 shadow-lg hover:shadow-blue-900/30 active:scale-95 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <Download size={18} className={isDownloadingPDF ? 'animate-bounce' : ''} />
+                    <span>{isDownloadingPDF ? 'PDF তৈরি হচ্ছে...' : 'স্লিপ PDF ডাউনলোড (প্রিন্ট কপি)'}</span>
+                  </button>
 
-                <button
-                  onClick={onBackToHome}
-                  className="px-6 py-3.5 bg-yellow-400 hover:bg-yellow-300 text-blue-950 rounded-xl font-black text-sm transition-all flex items-center gap-2 shadow-md active:scale-95"
-                >
-                  <Home size={18} />
-                  <span>মূল ওয়েবসাইটে ফিরে যান</span>
-                </button>
+                  <button
+                    onClick={() => {
+                      window.location.hash = 'admit-card';
+                    }}
+                    className="px-6 py-3.5 bg-indigo-950 hover:bg-indigo-900 text-white rounded-xl font-black text-sm transition-all flex items-center gap-2 shadow-md active:scale-95 cursor-pointer"
+                  >
+                    <FileText size={18} className="text-yellow-400" />
+                    <span>প্রবেশপত্র ডাউনলোড করুন</span>
+                  </button>
+
+                  <button
+                    onClick={onBackToHome}
+                    className="px-6 py-3.5 bg-yellow-400 hover:bg-yellow-300 text-blue-950 rounded-xl font-black text-sm transition-all flex items-center gap-2 shadow-md active:scale-95 cursor-pointer"
+                  >
+                    <Home size={18} />
+                    <span>মূল পাতা</span>
+                  </button>
+                </div>
+
+                <p className="text-xs font-bold text-slate-500 text-center flex items-center gap-1.5 mt-1">
+                  <span>💡</span>
+                  <span>PDF ফাইলটি ডাউনলোড করে আপনার ডিভাইস বা যেকোনো প্রিন্ট দোকান থেকে সরাসরি প্রিন্ট করে নিতে পারবেন।</span>
+                </p>
               </div>
             </div>
           </motion.div>

@@ -101,7 +101,8 @@ service cloud.firestore {
     match /scholarship_applications/{scholarshipId} {
       allow create: if isValidScholarshipApplication(request.resource.data);
       allow update: if true;
-      allow read, delete: if isAdmin();
+      allow read: if true;
+      allow delete: if isAdmin();
     }
     
     match /users/{userId} {
