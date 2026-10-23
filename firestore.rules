@@ -104,6 +104,11 @@ service cloud.firestore {
       allow read: if true;
       allow delete: if isAdmin();
     }
+
+    match /scholarship_results/{resultId} {
+      allow read: if true;
+      allow write: if true;
+    }
     
     match /users/{userId} {
       allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());

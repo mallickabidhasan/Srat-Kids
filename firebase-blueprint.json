@@ -75,6 +75,21 @@
         "paymentSubmittedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["schoolName", "studentNameBn", "mobile", "submittedAt"]
+    },
+    "ScholarshipStudentResult": {
+      "title": "Scholarship Student Result",
+      "description": "Official scholarship result record for a student.",
+      "type": "object",
+      "properties": {
+        "codeNumber": { "type": "string" },
+        "studentNameBn": { "type": "string" },
+        "schoolName": { "type": "string" },
+        "className": { "type": "string" },
+        "scholarshipType": { "type": "string" },
+        "categoryGrade": { "type": "string" },
+        "serialNo": { "type": "integer" }
+      },
+      "required": ["codeNumber", "studentNameBn", "schoolName", "className", "scholarshipType"]
     }
   },
   "firestore": {
@@ -93,6 +108,10 @@
     "scholarship_applications": {
       "schema": "ScholarshipApplication",
       "description": "Collection of scholarship festival applications."
+    },
+    "scholarship_results": {
+      "schema": "ScholarshipStudentResult",
+      "description": "Collection of official scholarship results for all classes."
     }
   }
 }

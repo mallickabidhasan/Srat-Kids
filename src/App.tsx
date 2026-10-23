@@ -38,7 +38,8 @@ import {
   Building2,
   ShieldCheck,
   Download,
-  FileText
+  FileText,
+  Archive
 } from 'lucide-react';
 import { motion, AnimatePresence, animate, useInView } from 'framer-motion';
 import { db, auth } from './firebase';
@@ -46,7 +47,15 @@ import { collection, addDoc, serverTimestamp, doc, runTransaction, setDoc, getDo
 import StarAIChat from './components/StarAIChat';
 import { ScholarshipApplicationPage } from './components/ScholarshipApplicationPage';
 import { AdmitCardDownloadPage } from './components/AdmitCardDownloadPage';
+import { ScholarshipResultPage } from './components/ScholarshipResultPage';
+import { ScholarshipArchivePage } from './components/ScholarshipArchivePage';
+import { ScholarshipTimelinePage } from './components/ScholarshipTimelinePage';
+import { ActivitiesPage } from './components/ActivitiesPage';
+import { FacultyPage } from './components/FacultyPage';
+import { BlogPage } from './components/BlogPage';
+import { FeeListPage } from './components/FeeListPage';
 import { ScholarshipFestivalModal } from './components/ScholarshipFestivalModal';
+import { is2027ApplicationOpen } from './utils/scholarshipDates';
 
 enum OperationType {
   CREATE = 'create',
@@ -711,18 +720,29 @@ const Navbar = ({
     <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-lg py-2' : 'bg-transparent py-4'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
+          <a 
+            href="#" 
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              if (window.location.hash) {
+                window.history.pushState("", document.title, window.location.pathname + window.location.search);
+                window.dispatchEvent(new Event('hashchange'));
+              }
+            }}
+            className="flex items-center gap-2 group cursor-pointer transition-transform hover:opacity-95"
+            aria-label="STAR KIDS হোম পেজ"
+          >
             <img 
               src="https://i.imgur.com/PmCP59l.png" 
               alt="STAR KIDS Logo" 
-              className="w-12 h-12 object-contain cursor-pointer hover:scale-110 transition-transform"
+              className="w-12 h-12 object-contain group-hover:scale-105 transition-transform"
               referrerPolicy="no-referrer"
-              onClick={() => onImageClick("https://i.imgur.com/PmCP59l.png")}
             />
-            <span className={`text-2xl font-bold tracking-tighter ${scrolled ? 'text-blue-900' : 'text-white'}`}>
+            <span className={`text-2xl font-bold tracking-tighter transition-colors ${scrolled ? 'text-blue-900 group-hover:text-yellow-600' : 'text-white group-hover:text-yellow-300'}`}>
               STAR KIDS
             </span>
-          </div>
+          </a>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
@@ -941,7 +961,13 @@ const NoticeBoard = () => {
   );
 };
 
-const About = ({ onImageClick }: { onImageClick: (src: string, caption?: string) => void }) => {
+const About = ({ 
+  onImageClick, 
+  onOpenActivities 
+}: { 
+  onImageClick: (src: string, caption?: string) => void;
+  onOpenActivities?: () => void;
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAllActivities, setShowAllActivities] = useState(false);
   
@@ -1032,12 +1058,12 @@ const About = ({ onImageClick }: { onImageClick: (src: string, caption?: string)
                     </motion.div>
                   ))}
                   
-                  {/* Arrow button for all activities - Enhanced for Mobile */}
+                  {/* Arrow button for all activities - Opens full ActivitiesPage */}
                   <motion.button
                     whileHover={{ scale: 1.05, backgroundColor: '#fbbf24' }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setShowAllActivities(true)}
-                    className="shrink-0 w-32 md:w-40 aspect-[4/3] bg-blue-50 rounded-3xl flex flex-col items-center justify-center text-blue-900 transition-all shadow-lg border-4 border-white group/btn snap-center z-10"
+                    onClick={() => onOpenActivities ? onOpenActivities() : setShowAllActivities(true)}
+                    className="shrink-0 w-32 md:w-40 aspect-[4/3] bg-blue-50 rounded-3xl flex flex-col items-center justify-center text-blue-900 transition-all shadow-lg border-4 border-white group/btn snap-center z-10 cursor-pointer"
                   >
                     <div className="bg-white/50 p-3 rounded-full group-hover/btn:bg-white transition-colors mb-2">
                       <ChevronRight size={32} className="md:w-10 md:h-10" />
@@ -1114,11 +1140,15 @@ const About = ({ onImageClick }: { onImageClick: (src: string, caption?: string)
 };
 
 const ScholarshipFestivalSection = ({ 
-  onApplyClick, 
-  onDownloadAdmitClick 
+  onApplyClick,
+  onAdmitCardClick,
+  onResultClick,
+  onArchiveClick,
 }: { 
-  onApplyClick: () => void; 
-  onDownloadAdmitClick: () => void; 
+  onApplyClick: () => void;
+  onAdmitCardClick: () => void;
+  onResultClick: () => void;
+  onArchiveClick: () => void;
 }) => {
   return (
     <section className="py-4 sm:py-6 bg-gradient-to-b from-white via-blue-50/50 to-blue-50 relative overflow-hidden">
@@ -1156,9 +1186,9 @@ const ScholarshipFestivalSection = ({
             </div>
           </div>
 
-          {/* Action Buttons: Side by Side on Tablet/Desktop for Minimal Vertical Space */}
-          <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3.5 max-w-2xl mx-auto my-3">
-            {/* Primary Action: Application */}
+          {/* Action Buttons Row 1: Application & Admit Card (Opens individual full pages) */}
+          <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3.5 max-w-2xl mx-auto mt-3 mb-2.5">
+            {/* Primary Action: Application Page */}
             <motion.button 
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -1170,11 +1200,11 @@ const ScholarshipFestivalSection = ({
               <ChevronRight size={18} className="shrink-0" />
             </motion.button>
 
-            {/* Secondary Action: Admit Card Download */}
+            {/* Secondary Action: Admit Card Download Page */}
             <motion.button 
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={onDownloadAdmitClick}
+              onClick={onAdmitCardClick}
               className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white hover:text-yellow-300 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm md:text-base shadow-md border border-white/30 hover:border-yellow-400 transition-all cursor-pointer backdrop-blur-md group whitespace-nowrap"
             >
               <Download size={18} className="text-yellow-400 group-hover:animate-bounce shrink-0" />
@@ -1182,10 +1212,35 @@ const ScholarshipFestivalSection = ({
             </motion.button>
           </div>
 
+          {/* Action Buttons Row 2: "ফলাফল" & "স্টার বৃত্তি উৎসব ২০২৬ আর্কাইভ" (Opens individual full pages) */}
+          <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3.5 max-w-2xl mx-auto mb-3">
+            {/* Result Page Button */}
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onResultClick}
+              className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 text-white hover:brightness-110 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm md:text-base shadow-md transition-all border border-emerald-300/40 cursor-pointer whitespace-nowrap"
+            >
+              <Award size={18} className="text-yellow-300 shrink-0" />
+              <span className="whitespace-nowrap">ফলাফল</span>
+            </motion.button>
+
+            {/* 2026 Archive Page Button */}
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onArchiveClick}
+              className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 bg-slate-800/90 hover:bg-slate-800 text-white hover:text-yellow-300 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm md:text-base shadow-md border border-white/20 hover:border-yellow-400/60 transition-all cursor-pointer backdrop-blur-md whitespace-nowrap"
+            >
+              <Archive size={18} className="text-yellow-400 shrink-0" />
+              <span className="whitespace-nowrap">স্টার বৃত্তি উৎসব ২০২৬ আর্কাইভ</span>
+            </motion.button>
+          </div>
+
           {/* Compact Date Information Footer */}
-          <div className="relative z-10 mt-2.5 pt-2.5 border-t border-white/10 flex items-center justify-center gap-1.5 text-[11px] sm:text-xs md:text-sm font-medium text-blue-200">
+          <div className="relative z-10 mt-2.5 pt-2.5 border-t border-white/10 flex items-center justify-center gap-1.5 text-[11px] sm:text-xs md:text-sm font-medium text-yellow-300">
             <Calendar size={14} className="text-yellow-400 shrink-0" />
-            <span>প্রবেশপত্র ডাউনলোড উন্মুক্ত: ২০ সেপ্টেম্বর হতে ৮ অক্টোবর ২০২৬ রাত ১২:০০ টা পর্যন্ত</span>
+            <span>আগামী ৮ অক্টোবর, ২০২৭ এর জন্য স্টার কিডস আপনার অপেক্ষায়</span>
           </div>
         </div>
       </div>
@@ -1718,7 +1773,7 @@ interface TeacherData {
   mobile: string;
 }
 
-const GeneralFaculty = () => {
+const GeneralFaculty = ({ onOpenFaculty }: { onOpenFaculty?: () => void }) => {
   const [showAll, setShowAll] = useState(false);
 
   return (
@@ -1785,8 +1840,8 @@ const GeneralFaculty = () => {
           <motion.button 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setShowAll(true)}
-            className="bg-[#1e3a8a] text-white px-12 py-5 rounded-2xl font-black text-lg md:text-xl shadow-[0_10px_30px_rgba(30,58,138,0.3)] flex items-center gap-3 mx-auto group"
+            onClick={() => onOpenFaculty ? onOpenFaculty() : setShowAll(true)}
+            className="bg-[#1e3a8a] text-white px-12 py-5 rounded-2xl font-black text-lg md:text-xl shadow-[0_10px_30px_rgba(30,58,138,0.3)] flex items-center gap-3 mx-auto group cursor-pointer"
           >
             Search Your Teachers (48)
           </motion.button>
@@ -2157,7 +2212,13 @@ const ITDepartment = () => {
   );
 };
 
-const BlogSection = ({ onImageClick }: { onImageClick: (src: string, caption?: string) => void }) => {
+const BlogSection = ({ 
+  onImageClick, 
+  onOpenBlog 
+}: { 
+  onImageClick: (src: string, caption?: string) => void;
+  onOpenBlog?: () => void;
+}) => {
   const [showAllBlogs, setShowAllBlogs] = useState(false);
 
   return (
@@ -2205,8 +2266,8 @@ const BlogSection = ({ onImageClick }: { onImageClick: (src: string, caption?: s
 
         <div className="text-center">
           <button 
-            onClick={() => setShowAllBlogs(true)}
-            className="bg-blue-900 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-blue-800 transition-all shadow-xl shadow-blue-900/20 active:scale-95 inline-flex items-center gap-2"
+            onClick={() => onOpenBlog ? onOpenBlog() : setShowAllBlogs(true)}
+            className="bg-blue-900 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-blue-800 transition-all shadow-xl shadow-blue-900/20 active:scale-95 inline-flex items-center gap-2 cursor-pointer"
           >
             সকল ব্লগ দেখুন <ChevronRight size={20} />
           </button>
@@ -2963,16 +3024,29 @@ const Footer = ({
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Brand Info */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
+            <a 
+              href="#" 
+              onClick={(e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (window.location.hash) {
+                  window.history.pushState("", document.title, window.location.pathname + window.location.search);
+                  window.dispatchEvent(new Event('hashchange'));
+                }
+              }}
+              className="inline-flex items-center gap-2 mb-4 group cursor-pointer transition-transform hover:opacity-95"
+              aria-label="STAR KIDS হোম পেজ"
+            >
               <img 
                 src={logoUrl} 
                 alt="STAR KIDS Logo" 
-                className="w-12 h-12 object-contain cursor-pointer hover:scale-110 transition-transform"
+                className="w-12 h-12 object-contain group-hover:scale-105 transition-transform"
                 referrerPolicy="no-referrer"
-                onClick={() => onImageClick(logoUrl)}
               />
-              <span className="text-2xl font-black tracking-tighter">STAR KIDS</span>
-            </div>
+              <span className="text-2xl font-black tracking-tighter text-white group-hover:text-yellow-400 transition-colors">
+                STAR KIDS
+              </span>
+            </a>
             <p className="text-blue-100 leading-relaxed mb-4">
               <span className="block font-bold text-white mb-1">মেধাবৃত্তি থেকে শুরু করে চূড়ান্ত পরীক্ষা—</span>
               শিক্ষার প্রতিটি ধাপে আপনার সন্তানের শতভাগ সাফল্য ও নৈতিক বিকাশে আমাদের নিরলস প্রয়াস।
@@ -3167,7 +3241,7 @@ const FeeModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void })
   );
 };
 
-const FeeSection = () => {
+const FeeSection = ({ onOpenFeeList }: { onOpenFeeList?: () => void }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   return (
@@ -3177,7 +3251,7 @@ const FeeSection = () => {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => onOpenFeeList ? onOpenFeeList() : setIsModalOpen(true)}
             className="w-full bg-gradient-to-br from-blue-900 to-blue-800 p-8 rounded-[2.5rem] shadow-2xl text-center group relative overflow-hidden"
           >
             {/* Decorative background elements */}
@@ -3261,6 +3335,8 @@ const LoadingScreen = () => {
   );
 };
 
+type ActiveView = 'home' | 'scholarship' | 'admit_card' | 'scholarship_result' | 'scholarship_archive' | 'scholarship_timeline' | 'activities' | 'faculty' | 'blog' | 'fees';
+
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isScholarshipModalOpen, setIsScholarshipModalOpen] = useState(false);
@@ -3268,26 +3344,59 @@ export default function App() {
   const [lightboxCaption, setLightboxCaption] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [isFreeClassModalOpen, setIsFreeClassModalOpen] = useState(false);
-  const [activeView, setActiveView] = useState<'home' | 'scholarship' | 'admit_card'>('home');
+  const [activeView, setActiveView] = useState<ActiveView>('home');
 
   useEffect(() => {
     const handleHashChange = () => {
-      if (window.location.hash === '#scholarship-apply') {
+      const hash = window.location.hash;
+      if (hash === '#scholarship-apply') {
+        if (is2027ApplicationOpen()) {
+          setActiveView('scholarship');
+        } else {
+          setActiveView('scholarship_timeline');
+          window.location.hash = 'scholarship-timeline';
+        }
+      } else if (hash === '#scholarship-format' || hash === '#scholarship-apply-format') {
         setActiveView('scholarship');
-      } else if (window.location.hash === '#admit-card') {
+      } else if (hash === '#admit-card') {
         setActiveView('admit_card');
-      } else if ((activeView === 'scholarship' || activeView === 'admit_card') && !window.location.hash) {
+      } else if (hash === '#scholarship-result') {
+        setActiveView('scholarship_result');
+      } else if (hash === '#scholarship-archive') {
+        setActiveView('scholarship_archive');
+      } else if (hash === '#scholarship-timeline') {
+        setActiveView('scholarship_timeline');
+      } else if (hash === '#activities') {
+        setActiveView('activities');
+      } else if (hash === '#faculty') {
+        setActiveView('faculty');
+      } else if (hash === '#blog') {
+        setActiveView('blog');
+      } else if (hash === '#fees') {
+        setActiveView('fees');
+      } else if (!hash || hash === '#' || hash === '#home') {
         setActiveView('home');
       }
     };
     handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, [activeView]);
+  }, []);
 
   const openScholarshipPage = () => {
+    if (is2027ApplicationOpen()) {
+      setActiveView('scholarship');
+      window.location.hash = 'scholarship-apply';
+    } else {
+      setActiveView('scholarship_timeline');
+      window.location.hash = 'scholarship-timeline';
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const openApplicationFormFormat = () => {
     setActiveView('scholarship');
-    window.location.hash = 'scholarship-apply';
+    window.location.hash = 'scholarship-apply-format';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -3297,9 +3406,51 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const openResultPage = () => {
+    setActiveView('scholarship_result');
+    window.location.hash = 'scholarship-result';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const openArchivePage = () => {
+    setActiveView('scholarship_archive');
+    window.location.hash = 'scholarship-archive';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const openTimelinePage = () => {
+    setActiveView('scholarship_timeline');
+    window.location.hash = 'scholarship-timeline';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const openActivitiesPage = () => {
+    setActiveView('activities');
+    window.location.hash = 'activities';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const openFacultyPage = () => {
+    setActiveView('faculty');
+    window.location.hash = 'faculty';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const openBlogPage = () => {
+    setActiveView('blog');
+    window.location.hash = 'blog';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const openFeeListPage = () => {
+    setActiveView('fees');
+    window.location.hash = 'fees';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const backToHome = () => {
     setActiveView('home');
-    if (window.location.hash === '#scholarship-apply' || window.location.hash === '#admit-card') {
+    if (window.location.hash && ['#scholarship', '#admit-card', '#activities', '#faculty', '#blog', '#fees'].some(h => window.location.hash.startsWith(h))) {
       window.history.pushState("", document.title, window.location.pathname + window.location.search);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3343,18 +3494,90 @@ export default function App() {
       </AnimatePresence>
 
       {activeView === 'scholarship' ? (
-        <ScholarshipApplicationPage onBackToHome={backToHome} />
+        <ScholarshipApplicationPage 
+          onBackToHome={backToHome}
+          onNavigateAdmitCard={openAdmitCardPage}
+          onNavigateResult={openResultPage}
+          onNavigateArchive={openArchivePage}
+          onNavigateTimeline={openTimelinePage}
+        />
       ) : activeView === 'admit_card' ? (
-        <AdmitCardDownloadPage onBackToHome={backToHome} />
+        <AdmitCardDownloadPage 
+          onBackToHome={backToHome}
+          onNavigateApply={openScholarshipPage}
+          onNavigateResult={openResultPage}
+          onNavigateArchive={openArchivePage}
+          onNavigateTimeline={openTimelinePage}
+        />
+      ) : activeView === 'scholarship_result' ? (
+        <ScholarshipResultPage
+          onBackToHome={backToHome}
+          onNavigateApply={openScholarshipPage}
+          onNavigateAdmitCard={openAdmitCardPage}
+          onNavigateArchive={openArchivePage}
+        />
+      ) : activeView === 'scholarship_archive' ? (
+        <ScholarshipArchivePage
+          onBackToHome={backToHome}
+          onNavigateApply={openScholarshipPage}
+          onNavigateAdmitCard={openAdmitCardPage}
+          onNavigateResult={openResultPage}
+          onNavigateTimeline={openTimelinePage}
+        />
+      ) : activeView === 'scholarship_timeline' ? (
+        <ScholarshipTimelinePage
+          onBackToHome={backToHome}
+          onNavigateApply={openScholarshipPage}
+          onNavigateAdmitCard={openAdmitCardPage}
+          onNavigateResult={openResultPage}
+          onNavigateArchive={openArchivePage}
+          onNavigateApplyFormat={openApplicationFormFormat}
+        />
+      ) : activeView === 'activities' ? (
+        <ActivitiesPage
+          onBackToHome={backToHome}
+          onImageClick={openLightbox}
+          onNavigateApply={openScholarshipPage}
+          onNavigateAdmitCard={openAdmitCardPage}
+          onNavigateResult={openResultPage}
+          onNavigateArchive={openArchivePage}
+        />
+      ) : activeView === 'faculty' ? (
+        <FacultyPage
+          onBackToHome={backToHome}
+          onNavigateApply={openScholarshipPage}
+          onNavigateAdmitCard={openAdmitCardPage}
+          onNavigateResult={openResultPage}
+          onNavigateArchive={openArchivePage}
+        />
+      ) : activeView === 'blog' ? (
+        <BlogPage
+          onBackToHome={backToHome}
+          onImageClick={openLightbox}
+          onNavigateApply={openScholarshipPage}
+          onNavigateAdmitCard={openAdmitCardPage}
+          onNavigateResult={openResultPage}
+          onNavigateArchive={openArchivePage}
+        />
+      ) : activeView === 'fees' ? (
+        <FeeListPage
+          onBackToHome={backToHome}
+          onNavigateApply={openScholarshipPage}
+          onNavigateAdmitCard={openAdmitCardPage}
+          onNavigateResult={openResultPage}
+          onNavigateArchive={openArchivePage}
+        />
       ) : (
         <div className="">
           <Navbar onImageClick={openLightbox} />
           <Hero onImageClick={openLightbox} onVideoClick={openVideo} />
           <NoticeBoard />
-          <About onImageClick={openLightbox} />
+          <About onImageClick={openLightbox} onOpenActivities={openActivitiesPage} />
           <ScholarshipFestivalSection 
-            onApplyClick={openScholarshipPage} 
-            onDownloadAdmitClick={openAdmitCardPage} 
+            onApplyClick={openScholarshipPage}
+            onAdmitCardClick={openAdmitCardPage}
+            onResultClick={openResultPage}
+            onArchiveClick={openArchivePage}
           />
           <ClassesSection />
           <FacebookSection />
@@ -3363,11 +3586,11 @@ export default function App() {
           <ChiefCoordinatorSection onImageClick={openLightbox} />
           <ExperiencedTeachers onImageClick={openLightbox} />
           <ClassTeachers onImageClick={openLightbox} onFreeClassClick={() => setIsFreeClassModalOpen(true)} />
-          <GeneralFaculty />
+          <GeneralFaculty onOpenFaculty={openFacultyPage} />
           <ITDepartment />
-          <BlogSection onImageClick={openLightbox} />
+          <BlogSection onImageClick={openLightbox} onOpenBlog={openBlogPage} />
           <VisitorCounter />
-          <FeeSection />
+          <FeeSection onOpenFeeList={openFeeListPage} />
           <AdmissionForm />
           <Sponsors />
           <SocialLinks />
@@ -3398,7 +3621,9 @@ export default function App() {
         isOpen={isScholarshipModalOpen && !isLoading && activeView === 'home'}
         onClose={() => setIsScholarshipModalOpen(false)}
         onApplyClick={openScholarshipPage}
-        onDownloadAdmitClick={openAdmitCardPage}
+        onAdmitCardClick={openAdmitCardPage}
+        onResultClick={openResultPage}
+        onArchiveClick={openArchivePage}
       />
     </div>
   );

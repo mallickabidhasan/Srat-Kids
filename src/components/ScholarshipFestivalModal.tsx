@@ -1,19 +1,23 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles, Download, ChevronRight, Calendar, Bell } from 'lucide-react';
+import { X, Sparkles, Download, ChevronRight, Calendar, Bell, Award, Archive } from 'lucide-react';
 
 interface ScholarshipFestivalModalProps {
   isOpen: boolean;
   onClose: () => void;
   onApplyClick: () => void;
-  onDownloadAdmitClick: () => void;
+  onAdmitCardClick: () => void;
+  onResultClick: () => void;
+  onArchiveClick: () => void;
 }
 
 export const ScholarshipFestivalModal: React.FC<ScholarshipFestivalModalProps> = ({
   isOpen,
   onClose,
   onApplyClick,
-  onDownloadAdmitClick,
+  onAdmitCardClick,
+  onResultClick,
+  onArchiveClick,
 }) => {
   return (
     <AnimatePresence>
@@ -85,9 +89,9 @@ export const ScholarshipFestivalModal: React.FC<ScholarshipFestivalModalProps> =
                 </div>
               </div>
 
-              {/* Action Buttons: Application & Admit Card */}
-              <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3 max-w-xl mx-auto my-4">
-                {/* Primary Action: Application */}
+              {/* Action Buttons Row 1: Application & Admit Card */}
+              <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3 max-w-xl mx-auto mt-4 mb-2.5">
+                {/* Application Button -> Navigates to Application Page */}
                 <motion.button 
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -95,32 +99,63 @@ export const ScholarshipFestivalModal: React.FC<ScholarshipFestivalModalProps> =
                     onClose();
                     onApplyClick();
                   }}
-                  className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-blue-950 px-4 py-3 rounded-2xl font-black text-sm sm:text-base shadow-lg hover:shadow-yellow-400/40 transition-all border border-white cursor-pointer whitespace-nowrap"
+                  className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-blue-950 px-4 py-3 rounded-2xl font-black text-xs sm:text-sm shadow-lg hover:shadow-yellow-400/40 transition-all border border-white cursor-pointer whitespace-nowrap"
                 >
-                  <Sparkles size={18} className="text-blue-950 animate-spin shrink-0" />
+                  <Sparkles size={17} className="text-blue-950 animate-spin shrink-0" />
                   <span className="whitespace-nowrap">আবেদন করতে এখানে ক্লিক করুন</span>
-                  <ChevronRight size={18} className="shrink-0" />
+                  <ChevronRight size={17} className="shrink-0" />
                 </motion.button>
 
-                {/* Secondary Action: Admit Card Download */}
+                {/* Admit Card Download Button -> Navigates to Admit Card Page */}
                 <motion.button 
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     onClose();
-                    onDownloadAdmitClick();
+                    onAdmitCardClick();
                   }}
                   className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white hover:text-yellow-300 px-4 py-3 rounded-2xl font-black text-xs sm:text-sm shadow-md border border-white/30 hover:border-yellow-400 transition-all cursor-pointer backdrop-blur-md group whitespace-nowrap"
                 >
-                  <Download size={18} className="text-yellow-400 group-hover:animate-bounce shrink-0" />
+                  <Download size={17} className="text-yellow-400 group-hover:animate-bounce shrink-0" />
                   <span className="whitespace-nowrap">প্রবেশ পত্র ডাউনলোড করুন</span>
                 </motion.button>
               </div>
 
-              {/* Compact Date Information Footer */}
-              <div className="relative z-10 mt-3 pt-2.5 border-t border-white/10 flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-medium text-blue-200">
+              {/* Action Buttons Row 2: "ফলাফল" & "স্টার বৃত্তি উৎসব ২০২৬ আর্কাইভ" */}
+              <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3 max-w-xl mx-auto mb-3">
+                {/* Results Button */}
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    onClose();
+                    onResultClick();
+                  }}
+                  className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 text-white hover:brightness-110 px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm shadow-md transition-all border border-emerald-300/40 cursor-pointer whitespace-nowrap"
+                >
+                  <Award size={18} className="text-yellow-300 shrink-0" />
+                  <span className="whitespace-nowrap">ফলাফল</span>
+                </motion.button>
+
+                {/* 2026 Archive Button */}
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    onClose();
+                    onArchiveClick();
+                  }}
+                  className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 bg-slate-800/90 hover:bg-slate-800 text-white hover:text-yellow-300 px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm shadow-md border border-white/20 hover:border-yellow-400/60 transition-all cursor-pointer backdrop-blur-md whitespace-nowrap"
+                >
+                  <Archive size={17} className="text-yellow-400 shrink-0" />
+                  <span className="whitespace-nowrap">স্টার বৃত্তি উৎসব ২০২৬ আর্কাইভ</span>
+                </motion.button>
+              </div>
+
+              {/* Updated Compact Date Information Footer */}
+              <div className="relative z-10 mt-2.5 pt-2.5 border-t border-white/10 flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-medium text-yellow-300">
                 <Calendar size={14} className="text-yellow-400 shrink-0" />
-                <span>প্রবেশপত্র ডাউনলোড উন্মুক্ত: ২০ সেপ্টেম্বর হতে ৮ অক্টোবর ২০২৬ রাত ১২:০০ টা পর্যন্ত</span>
+                <span>আগামী ৮ অক্টোবর, ২০২৭ এর জন্য স্টার কিডস আপনার অপেক্ষায়</span>
               </div>
             </div>
           </motion.div>

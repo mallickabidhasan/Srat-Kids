@@ -4,7 +4,7 @@ import {
   Search, Download, ArrowLeft, CheckCircle2, 
   AlertCircle, Sparkles, Clock, Calendar, MapPin, 
   Phone, User, School, BookOpen, RefreshCw, FileText, Check, ShieldCheck, Award,
-  Lock, KeyRound, Eye, EyeOff, X
+  Lock, KeyRound, Eye, EyeOff, X, Archive
 } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
@@ -35,9 +35,19 @@ interface ApplicationData {
 
 interface AdmitCardDownloadPageProps {
   onBackToHome: () => void;
+  onNavigateApply?: () => void;
+  onNavigateResult?: () => void;
+  onNavigateArchive?: () => void;
+  onNavigateTimeline?: () => void;
 }
 
-export const AdmitCardDownloadPage: React.FC<AdmitCardDownloadPageProps> = ({ onBackToHome }) => {
+export const AdmitCardDownloadPage: React.FC<AdmitCardDownloadPageProps> = ({ 
+  onBackToHome,
+  onNavigateApply,
+  onNavigateResult,
+  onNavigateArchive,
+  onNavigateTimeline,
+}) => {
   const [searchMobile, setSearchMobile] = useState('');
   const [searchName, setSearchName] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -75,7 +85,7 @@ export const AdmitCardDownloadPage: React.FC<AdmitCardDownloadPageProps> = ({ on
       setPinInput('');
       setPinError(null);
     } else {
-      setPinError('ভুল সিকিউরিটি পিন! সঠিক কোড না দিলে অ্যাডমিন মোড চালু হবে না।');
+      setPinError('ভুল সিকিউরিটি পিন! সঠিক পিন না দিলে অ্যাডমিন মোড চালু হবে না।');
     }
   };
 
@@ -276,11 +286,45 @@ export const AdmitCardDownloadPage: React.FC<AdmitCardDownloadPageProps> = ({ on
             </div>
           </div>
 
-          {/* Admin / Preview Mode Toggle Button in Header */}
-          <div className="flex items-center gap-2">
+          {/* Sub Navigation & Admin Buttons in Header */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {onNavigateApply && (
+              <button
+                type="button"
+                onClick={onNavigateApply}
+                className="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 hover:bg-white/20 text-blue-100 hover:text-white transition-all flex items-center gap-1.5 border border-white/10 cursor-pointer"
+              >
+                <Sparkles size={14} className="text-yellow-400" />
+                <span>আবেদন</span>
+              </button>
+            )}
+            <div className="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black bg-yellow-400 text-blue-950 shadow-md flex items-center gap-1.5">
+              <Download size={14} />
+              <span>প্রবেশপত্র</span>
+            </div>
+            {onNavigateResult && (
+              <button
+                type="button"
+                onClick={onNavigateResult}
+                className="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 hover:bg-white/20 text-blue-100 hover:text-white transition-all flex items-center gap-1.5 border border-white/10 cursor-pointer"
+              >
+                <Award size={14} className="text-yellow-400" />
+                <span>ফলাফল</span>
+              </button>
+            )}
+            {onNavigateArchive && (
+              <button
+                type="button"
+                onClick={onNavigateArchive}
+                className="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 hover:bg-white/20 text-blue-100 hover:text-white transition-all flex items-center gap-1.5 border border-white/10 cursor-pointer"
+              >
+                <Archive size={14} className="text-yellow-400" />
+                <span>আর্কাইভ</span>
+              </button>
+            )}
             <button
               onClick={handleOpenAdminPrompt}
-              className={`px-3 py-1.5 rounded-full text-xs font-black transition-all flex items-center gap-1.5 border shadow-sm cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 border shadow-sm cursor-pointer ${
                 isAdminMode
                   ? 'bg-amber-400 text-blue-950 border-amber-300 hover:bg-amber-300'
                   : 'bg-white/10 text-yellow-300 border-white/20 hover:bg-white/20'
@@ -868,7 +912,7 @@ export const AdmitCardDownloadPage: React.FC<AdmitCardDownloadPageProps> = ({ on
                   <span className="bg-amber-100 text-amber-900 text-[11px] font-black px-3 py-1 rounded-full border border-amber-300 uppercase tracking-wider inline-block mb-1.5">
                     সিকিউরিটি ভেরিফিকেশন
                   </span>
-                  <h3 className="text-xl md:text-2xl font-black text-blue-950">অ্যাডমিন পিন কোড</h3>
+                  <h3 className="text-xl md:text-2xl font-black text-blue-950">অ্যাডমিন পিন নম্বর</h3>
                   <p className="text-xs md:text-sm font-bold text-slate-600 mt-1">
                     অ্যাডমিন প্রিভিউ মোড সক্রিয় করতে নির্ধারিত ৬ ডিজিটের গোপন সিকিউরিটি পিন প্রদান করুন।
                   </p>

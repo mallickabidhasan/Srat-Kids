@@ -4,7 +4,7 @@ import {
   Building2, GraduationCap, Users, MapPin, Phone, 
   ShieldCheck, CreditCard, ArrowLeft, CheckCircle2, 
   Sparkles, ChevronRight, AlertCircle, FileText,
-  Home, Copy, Check, Download
+  Home, Copy, Check, Download, Award, Archive, Calendar
 } from 'lucide-react';
 import { db, auth } from '../firebase';
 import { collection, addDoc, serverTimestamp, doc, setDoc, getDocs } from 'firebase/firestore';
@@ -48,9 +48,19 @@ const BENGALI_CLASSES = [
 
 interface ScholarshipApplicationPageProps {
   onBackToHome: () => void;
+  onNavigateAdmitCard?: () => void;
+  onNavigateResult?: () => void;
+  onNavigateArchive?: () => void;
+  onNavigateTimeline?: () => void;
 }
 
-export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProps> = ({ onBackToHome }) => {
+export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProps> = ({ 
+  onBackToHome,
+  onNavigateAdmitCard,
+  onNavigateResult,
+  onNavigateArchive,
+  onNavigateTimeline,
+}) => {
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
@@ -156,9 +166,11 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
         let maxVal = 2499;
         appsSnapshot.forEach((d) => {
           const data = d.data();
+          const docIdNum = parseInt(d.id, 10);
           const val = parseInt(data.formNo || data.rollNumber || '0', 10);
-          if (!isNaN(val) && val > maxVal) {
-            maxVal = val;
+          const candidate = !isNaN(docIdNum) && docIdNum > val ? docIdNum : val;
+          if (!isNaN(candidate) && candidate > maxVal) {
+            maxVal = candidate;
           }
         });
         if (maxVal >= 2500) {
@@ -174,7 +186,7 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
       setAssignedFormRollNo(assignedNumberStr);
 
       // Save full application to Firestore ONLY when both Step 1 and Step 2 are completed
-      let docId = '';
+      let docId = assignedNumberStr;
       try {
         const completeData = {
           ...formData,
@@ -188,8 +200,10 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
           paymentSubmittedAt: serverTimestamp()
         };
 
-        const docRef = await addDoc(collection(db, 'scholarship_applications'), completeData);
-        docId = docRef.id;
+        // Save with document ID as the sequential Form No (e.g., 2500, 2501, 2502)
+        // This ensures documents appear in pristine sequential order in Firestore Console by default
+        const docRef = doc(db, 'scholarship_applications', assignedNumberStr);
+        await setDoc(docRef, completeData);
         setSubmittedDocId(docId);
       } catch (fsErr) {
         handleFirestoreError(fsErr, OperationType.CREATE, 'scholarship_applications');
@@ -233,7 +247,7 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
   const handleDownloadAndWhatsApp = async () => {
     setIsDownloadingPDF(true);
     try {
-      const filename = `Scholarship_Slip_${formData.studentNameEn ? formData.studentNameEn.trim().replace(/\s+/g, '_') : '2026'}.pdf`;
+      const filename = `Scholarship_Slip_${formData.studentNameEn ? formData.studentNameEn.trim().replace(/\s+/g, '_') : '2027'}.pdf`;
       await downloadElementAsPdf({
         elementId: 'printable-slip',
         filename,
@@ -249,7 +263,7 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
     }
 
     // Prepare WhatsApp message with all filled details
-    const message = `*স্টার বৃত্তি উৎসব ২০২৬ - আবেদন স্লিপ*
+    const message = `*স্টার বৃত্তি উৎসব ২০২৭ - আবেদন স্লিপ*
 
 🔢 *ফরম ও রোল নং:* ${assignedFormRollNo || '২৫০০'}
 👤 *ছাত্র/ছাত্রীর নাম:* ${formData.studentNameBn} (${formData.studentNameEn})
@@ -289,20 +303,67 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
             </div>
             <div>
               <h1 className="text-xl md:text-2xl font-black text-yellow-400 tracking-tight flex items-center gap-2">
-                <span>স্টার বৃত্তি উৎসব ২০২৬</span>
+                <span>স্টার বৃত্তি উৎসব ২০২৭</span>
                 <span className="hidden sm:inline bg-yellow-400/20 text-yellow-300 text-xs px-2.5 py-1 rounded-full border border-yellow-400/40">আবেদন পোর্টাল</span>
               </h1>
               <p className="text-blue-200 text-xs md:text-sm font-semibold">স্টার কিডস কোচিং সেন্টার</p>
             </div>
           </div>
 
-          <button
-            onClick={onBackToHome}
-            className="bg-yellow-400 hover:bg-yellow-300 text-blue-950 px-5 py-2.5 rounded-full font-black text-xs md:text-sm transition-all flex items-center gap-2 shadow-lg hover:shadow-yellow-400/40 transform hover:-translate-x-0.5 active:scale-95"
-          >
-            <ArrowLeft size={18} />
-            <span>মূল ওয়েবসাইটে ফিরে যান</span>
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black bg-yellow-400 text-blue-950 shadow-md flex items-center gap-1.5">
+              <Sparkles size={14} />
+              <span>আবেদন</span>
+            </div>
+            {onNavigateTimeline && (
+              <button
+                type="button"
+                onClick={onNavigateTimeline}
+                className="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 hover:bg-white/20 text-blue-100 hover:text-white transition-all flex items-center gap-1.5 border border-white/10 cursor-pointer"
+              >
+                <Calendar size={14} className="text-yellow-400" />
+                <span>টাইমলাইন</span>
+              </button>
+            )}
+            {onNavigateAdmitCard && (
+              <button
+                type="button"
+                onClick={onNavigateAdmitCard}
+                className="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 hover:bg-white/20 text-blue-100 hover:text-white transition-all flex items-center gap-1.5 border border-white/10 cursor-pointer"
+              >
+                <Download size={14} className="text-yellow-400" />
+                <span>প্রবেশপত্র</span>
+              </button>
+            )}
+            {onNavigateResult && (
+              <button
+                type="button"
+                onClick={onNavigateResult}
+                className="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 hover:bg-white/20 text-blue-100 hover:text-white transition-all flex items-center gap-1.5 border border-white/10 cursor-pointer"
+              >
+                <Award size={14} className="text-yellow-400" />
+                <span>ফলাফল</span>
+              </button>
+            )}
+            {onNavigateArchive && (
+              <button
+                type="button"
+                onClick={onNavigateArchive}
+                className="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 hover:bg-white/20 text-blue-100 hover:text-white transition-all flex items-center gap-1.5 border border-white/10 cursor-pointer"
+              >
+                <Archive size={14} className="text-yellow-400" />
+                <span>আর্কাইভ</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onBackToHome}
+              className="bg-yellow-400 hover:bg-yellow-300 text-blue-950 px-4 py-2 rounded-xl font-black text-xs md:text-sm transition-all flex items-center gap-1.5 shadow-lg hover:shadow-yellow-400/40 transform hover:-translate-x-0.5 active:scale-95 cursor-pointer ml-1"
+            >
+              <ArrowLeft size={16} />
+              <span>হোম</span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -381,7 +442,7 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
                   শিক্ষার্থী আবেদন ফর্ম
                 </h2>
                 <p className="text-blue-100 font-medium text-sm mt-1">
-                  স্টার বৃত্তি উৎসব ২০২৬ এ অংশগ্রহণের জন্য আপনার সকল সঠিক তথ্য নিচে প্রদান করুন।
+                  স্টার বৃত্তি উৎসব ২০২৭ এ অংশগ্রহণের জন্য আপনার সকল সঠিক তথ্য নিচে প্রদান করুন।
                 </p>
               </div>
 
@@ -813,7 +874,7 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
               </div>
               <h2 className="text-3xl md:text-4xl font-black text-yellow-300">আবেদন সফলভাবে সম্পন্ন হয়েছে!</h2>
               <p className="text-green-100 font-bold text-base mt-2">
-                স্টার বৃত্তি উৎসব ২০২৬ পোর্টালে আপনার নিবন্ধন জমা হয়েছে।
+                স্টার বৃত্তি উৎসব ২০২৭ পোর্টালে আপনার নিবন্ধন জমা হয়েছে।
               </p>
             </div>
 
@@ -831,7 +892,7 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
                     />
                     <div>
                       <h3 className="font-black text-lg text-blue-950">স্টার কিডস কোচিং সেন্টার</h3>
-                      <p className="text-xs text-slate-600 font-bold">স্টার বৃত্তি উৎসব ২০২৬ - আবেদন স্লিপ</p>
+                      <p className="text-xs text-slate-600 font-bold">স্টার বৃত্তি উৎসব ২০২৭ - আবেদন স্লিপ</p>
                     </div>
                   </div>
 
@@ -847,7 +908,7 @@ export const ScholarshipApplicationPage: React.FC<ScholarshipApplicationPageProp
                   <div className="bg-amber-50 p-3.5 rounded-xl border border-amber-300 sm:col-span-2 flex items-center justify-between">
                     <div>
                       <span className="text-xs text-amber-900 font-bold block">নির্ধারিত ফরম নং ও রোল নম্বর:</span>
-                      <span className="text-xs text-slate-600 font-semibold">আবেদন ও প্রবেশপত্রের জন্য নির্ধারিত কোড</span>
+                      <span className="text-xs text-slate-600 font-semibold">আবেদন ও প্রবেশপত্রের জন্য নির্ধারিত রোল নম্বর</span>
                     </div>
                     <span className="text-xl font-black text-blue-950 font-mono tracking-widest bg-white px-4 py-1 rounded-lg border border-amber-400 shadow-inner">
                       {assignedFormRollNo || '2500'}
